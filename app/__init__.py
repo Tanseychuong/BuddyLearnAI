@@ -1,0 +1,1 @@
+"""BuddyLearnAI backend package."""

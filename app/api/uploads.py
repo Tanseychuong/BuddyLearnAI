@@ -1,0 +1,41 @@
+from pathlib import Path
+from uuid import uuid4
+
+from fastapi import APIRouter, File, Form, UploadFile, status
+from pydantic import BaseModel
+
+from app.core.config import get_settings
+
+
+router = APIRouter(prefix="/uploads", tags=["Document Processing"])
+
+
+class UploadResponse(BaseModel):
+    id: str
+    course_id: int
+    filename: str
+    content_type: str | None
+    status: str
+
+
+@router.post("", response_model=UploadResponse, status_code=status.HTTP_202_ACCEPTED)
+async def upload_material(
+    course_id: int = Form(...),
+    file: UploadFile = File(...),
+) -> UploadResponse:
+    settings = get_settings()
+    upload_dir = Path(settings.upload_dir)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    material_id = str(uuid4())
+    safe_name = Path(file.filename or "material").name
+    destination = upload_dir / f"{material_id}-{safe_name}"
+    destination.write_bytes(await file.read())
+
+    return UploadResponse(
+        id=material_id,
+        course_id=course_id,
+        filename=safe_name,
+        content_type=file.content_type,
+        status="queued_for_processing",
+    )
