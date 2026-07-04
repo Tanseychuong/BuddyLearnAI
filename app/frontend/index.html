@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BuddyLearnAI</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="brand" href="/">
+          <span class="brand-mark">B</span>
+          <span>
+            <strong>BuddyLearnAI</strong>
+            <small>Study workspace</small>
+          </span>
+        </a>
+
+        <nav class="nav-list" aria-label="Workspace navigation">
+          <a href="#overview" class="active">Overview</a>
+          <a href="#materials">Materials</a>
+          <a href="#generate">Generate</a>
+          <a href="#progress">Progress</a>
+          <a href="#admin" data-admin-only hidden>Admin</a>
+        </nav>
+
+        <div class="sidebar-panel">
+          <span class="label">Signed in as</span>
+          <p id="role-summary">Student workspace</p>
+          <div class="role-switcher" aria-label="Choose role">
+            <button class="role-button active" data-role="student" type="button">Student</button>
+            <button class="role-button" data-role="teacher" type="button">Teacher</button>
+            <button class="role-button" data-role="admin" type="button">Admin</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="workspace-eyebrow">Student dashboard</p>
+            <h1 id="workspace-title">Turn course files into focused study sessions.</h1>
+          </div>
+          <div class="top-actions">
+            <button class="ghost-button" id="role-action" type="button">Student mode</button>
+          </div>
+        </header>
+
+        <section id="overview" class="hero-grid" aria-label="Study overview">
+          <div class="hero-panel">
+            <div class="hero-copy">
+              <span class="pill">Today</span>
+              <h2>Ready to build your next study set?</h2>
+              <p id="workspace-copy">
+                Upload notes, generate quizzes, create flashcards, and review exam patterns from one calm workspace.
+              </p>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+              <div class="document-stack">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="score-ring">
+                <strong>82</strong>
+                <small>readiness</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-grid">
+            <article>
+              <span class="metric">0</span>
+              <p>Courses</p>
+            </article>
+            <article>
+              <span class="metric">0</span>
+              <p>Materials</p>
+            </article>
+            <article>
+              <span class="metric">New</span>
+              <p>Workspace</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="materials" class="content-grid">
+          <article class="panel upload-panel">
+            <div class="section-heading">
+              <span class="label">Materials</span>
+              <h2>Upload a course document</h2>
+            </div>
+            <form id="upload-form" class="form-stack">
+              <label>
+                Course ID
+                <input name="course_id" type="number" value="1" min="1" required />
+              </label>
+              <label class="file-drop">
+                <input name="file" type="file" required />
+                <span>Choose PDF, slides, notes, or past questions</span>
+              </label>
+              <button type="submit" class="primary-button">Upload material</button>
+            </form>
+            <p id="upload-result" class="result-line" aria-live="polite"></p>
+          </article>
+
+          <article id="generate" class="panel">
+            <div class="section-heading">
+              <span class="label">Generate</span>
+              <h2>Quick study tools</h2>
+            </div>
+            <div class="tool-list">
+              <button class="tool-button" data-action="study-guide">Study guide</button>
+              <button class="tool-button" data-action="quiz">Quiz</button>
+              <button class="tool-button" data-action="flashcards">Flashcards</button>
+              <button class="tool-button" data-action="recommendations">Recommendations</button>
+            </div>
+            <div id="tool-output" class="output-box">Select a study tool to preview a study result.</div>
+          </article>
+        </section>
+
+        <section id="progress" class="panel progress-panel">
+          <div class="section-heading">
+            <span class="label">Progress</span>
+            <h2>Learning signals</h2>
+          </div>
+          <div class="progress-list">
+            <div>
+              <span>Quiz performance</span>
+              <progress max="100" value="62"></progress>
+            </div>
+            <div>
+              <span>Material coverage</span>
+              <progress max="100" value="38"></progress>
+            </div>
+            <div>
+              <span>Exam readiness</span>
+              <progress max="100" value="82"></progress>
+            </div>
+          </div>
+        </section>
+
+        <section id="admin" class="panel admin-panel" data-admin-only hidden>
+          <div class="section-heading">
+            <span class="label">Admin</span>
+            <h2>System controls</h2>
+          </div>
+          <p>
+            Admins can manage platform operations and monitor service health without exposing developer tools.
+          </p>
+          <div class="top-actions">
+            <a class="ghost-button" href="/health">Check health</a>
+          </div>
+          <p class="hint">Developer API documentation is not exposed through the application.</p>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
