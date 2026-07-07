@@ -59,11 +59,11 @@ async def root() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")
 
 
-@app.get("/health")
+'''@app.get("/health")
 async def health():
     return {
         "status": "healthy"
-    }
+    }'''
 
 
 if __name__ == "__main__":
