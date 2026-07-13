@@ -1,3 +1,15 @@
+'''
+[=========================================================================================]
+AppName: BuddyLearnAI
+
+version: v1.0
+
+Program dependencies: python 3.14.6
+
+author: Chuong Tiutiu Nyang Mayian
+[=========================================================================================]
+'''
+
 from pydantic import BaseModel, EmailStr, Field
 from fastapi import APIRouter, HTTPException, status
 
