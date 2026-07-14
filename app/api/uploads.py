@@ -9,7 +9,7 @@ from app.core.config import get_settings
 
 router = APIRouter(prefix="/uploads", tags=["Document Processing"])
 
-
+# UploadResponse model to represent the response after uploading a file
 class UploadResponse(BaseModel):
     id: str
     course_id: int
@@ -17,7 +17,7 @@ class UploadResponse(BaseModel):
     content_type: str | None
     status: str
 
-
+# Endpoint to handle file uploads
 @router.post("", response_model=UploadResponse, status_code=status.HTTP_202_ACCEPTED)
 async def upload_material(
     course_id: int = Form(...),
@@ -31,7 +31,7 @@ async def upload_material(
     safe_name = Path(file.filename or "material").name
     destination = upload_dir / f"{material_id}-{safe_name}"
     destination.write_bytes(await file.read())
-
+# return the response with the uploaded file details
     return UploadResponse(
         id=material_id,
         course_id=course_id,
