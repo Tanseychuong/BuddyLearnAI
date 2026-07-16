@@ -4,23 +4,23 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix="/flashcards", tags=["Flashcards"])
 
-
+#Flashcard generator request class
 class FlashcardGenerateRequest(BaseModel):
     course_id: int
     topic: str | None = Field(default=None, max_length=160)
     count: int = Field(default=20, ge=1, le=100)
 
-
+#Flashcard  blueprint class
 class Flashcard(BaseModel):
     front: str
     back: str
 
-
+#Flashcard generator response class
 class FlashcardGenerateResponse(BaseModel):
     course_id: int
     flashcards: list[Flashcard]
 
-
+# Sending respond data to the frontend.
 @router.post("/generate", response_model=FlashcardGenerateResponse)
 def generate_flashcards(payload: FlashcardGenerateRequest) -> FlashcardGenerateResponse:
     topic = payload.topic or "uploaded material"
