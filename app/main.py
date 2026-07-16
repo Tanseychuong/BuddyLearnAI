@@ -21,9 +21,12 @@ from app.api import (
     recommendations,
 )
 
+# Initializing the base directory
+
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 
+# Defining the app info
 app = FastAPI(
     title="AI Learning Buddy API",
     version="1.0.0",
