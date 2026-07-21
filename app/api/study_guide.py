@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from fastapi import APIRouter
 
-
+# initializing the router for the study_guide module
 router = APIRouter(prefix="/study-guides", tags=["Study Guides"])
 
 
