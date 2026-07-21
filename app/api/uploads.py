@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from app.core.config import get_settings
 
-
+# initializing router for the uploads modules
 router = APIRouter(prefix="/uploads", tags=["Document Processing"])
 
 # UploadResponse model to represent the response after uploading a file
