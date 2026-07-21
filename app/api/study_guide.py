@@ -17,7 +17,7 @@ class StudyGuideResponse(BaseModel):
     sections: list[str]
     status: str
 
-
+# class for posting the study guide request
 @router.post("/generate", response_model=StudyGuideResponse)
 def generate_study_guide(payload: StudyGuideRequest) -> StudyGuideResponse:
     title = payload.topic or "Course Study Guide"
