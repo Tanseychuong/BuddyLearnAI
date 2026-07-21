@@ -10,7 +10,7 @@ class StudyGuideRequest(BaseModel):
     course_id: int
     topic: str | None = Field(default=None, max_length=160)
 
-
+# class for response in the study guide module
 class StudyGuideResponse(BaseModel):
     course_id: int
     title: str
