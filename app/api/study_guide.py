@@ -5,6 +5,7 @@ from fastapi import APIRouter
 router = APIRouter(prefix="/study-guides", tags=["Study Guides"])
 
 
+#class for study guided request
 class StudyGuideRequest(BaseModel):
     course_id: int
     topic: str | None = Field(default=None, max_length=160)
