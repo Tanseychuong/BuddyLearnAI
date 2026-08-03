@@ -1,26 +1,50 @@
-from pydantic import BaseModel, Field
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.models.user import User
+from app.repositories import course_repository
+from app.schemas import CourseCreate, CourseRead
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
 
-class CourseCreate(BaseModel):
-    code: str = Field(min_length=2, max_length=20, examples=["CS204"])
-    title: str = Field(min_length=2, max_length=160, examples=["Data Structures"])
-    description: str | None = None
+@router.get("", response_model=list[CourseRead])
+def list_courses(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[CourseRead]:
+    rows = course_repository.list_for_owner(db, owner_id=current_user.id)
+    return [
+        CourseRead(
+            id=course.id,
+            code=course.code,
+            title=course.title,
+            description=course.description,
+            material_count=count,
+        )
+        for course, count in rows
+    ]
 
 
-class Course(CourseCreate):
-    id: int
-    material_count: int = 0
-
-
-@router.get("", response_model=list[Course])
-def list_courses() -> list[Course]:
-    return []
-
-
-@router.post("", response_model=Course, status_code=status.HTTP_201_CREATED)
-def create_course(payload: CourseCreate) -> Course:
-    return Course(id=1, **payload.model_dump())
+@router.post("", response_model=CourseRead, status_code=status.HTTP_201_CREATED)
+def create_course(
+    payload: CourseCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> CourseRead:
+    course = course_repository.create(
+        db,
+        owner_id=current_user.id,
+        code=payload.code,
+        title=payload.title,
+        description=payload.description,
+    )
+    return CourseRead(
+        id=course.id,
+        code=course.code,
+        title=course.title,
+        description=course.description,
+        material_count=0,
+    )
