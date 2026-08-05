@@ -1,4 +1,5 @@
 # importing the important modules and libraries for the development of the uploads helper modules
+import logging
 from pathlib import Path
 from uuid import uuid4
 
@@ -11,6 +12,9 @@ from app.core.database import get_db
 from app.models.user import User
 from app.repositories import course_repository, material_repository
 from app.schemas import MaterialRead
+from app.workers.tasks import process_material_task
+
+logger = logging.getLogger(__name__)
 
 # initializing router for the uploads modules
 router = APIRouter(prefix="/uploads", tags=["Document Processing"])
@@ -46,7 +50,15 @@ async def upload_material(
         storage_path=str(destination),
     )
 
-    # TODO: enqueue a Celery task here to extract text, chunk it, and embed it
-    # into Qdrant. Tracked as the next build phase (document processing pipeline).
+    try:
+        process_material_task.delay(material.id)
+    except Exception:
+        # Broker (Redis) unreachable in this environment — the material stays
+        # "queued_for_processing" and can be picked up once the worker/broker
+        # are running, e.g. via `docker-compose up -d redis` and a Celery worker.
+        logger.warning(
+            "Could not enqueue processing for material %s (broker unreachable).",
+            material.id,
+        )
 
     return MaterialRead.model_validate(material)
