@@ -10,44 +10,40 @@ author: Chuong Tiutiu Nyang Mayian
 [=========================================================================================]
 '''
 
-from pydantic import BaseModel, EmailStr, Field
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-from app.core.security import create_access_token, get_password_hash
-
+from app.core.database import get_db
+from app.core.security import create_access_token, get_password_hash, verify_password
+from app.repositories import user_repository
+from app.schemas import TokenResponse, UserCreate, UserLogin, UserRead
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-class RegisterRequest(BaseModel):
-    email: EmailStr
-    full_name: str = Field(min_length=1, max_length=120)
-    password: str = Field(min_length=8)
+@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserRead:
+    if user_repository.get_by_email(db, payload.email):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this email already exists.",
+        )
 
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-
-@router.post("/register", status_code=status.HTTP_201_CREATED)
-def register(payload: RegisterRequest) -> dict[str, str]:
-    password_hash = get_password_hash(payload.password)
-    return {
-        "email": payload.email,
-        "full_name": payload.full_name,
-        "password_hash_preview": password_hash[:16],
-        "status": "registered",
-    }
+    user = user_repository.create(
+        db,
+        email=payload.email,
+        full_name=payload.full_name,
+        hashed_password=get_password_hash(payload.password),
+    )
+    return UserRead.model_validate(user)
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest) -> TokenResponse:
-    if not payload.password:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    return TokenResponse(access_token=create_access_token(subject=payload.email))
+def login(payload: UserLogin, db: Session = Depends(get_db)) -> TokenResponse:
+    user = user_repository.get_by_email(db, payload.email)
+    if not user or not verify_password(payload.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
+    return TokenResponse(access_token=create_access_token(subject=user.email))

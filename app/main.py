@@ -20,6 +20,9 @@ from app.api import (
     exams,
     recommendations,
 )
+from app.core.config import get_settings
+from app.core.database import Base, engine
+from app import models  # noqa: F401  (registers model classes on Base.metadata)
 
 # Initializing the base directory
 
@@ -62,11 +65,18 @@ async def root() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")
 
 
-'''@app.get("/health")
-async def health():
-    return {
-        "status": "healthy"
-    }'''
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "healthy"}
+
+
+@app.on_event("startup")
+def on_startup() -> None:
+    settings = get_settings()
+    if settings.environment == "development":
+        # Stand-in for Alembic migrations during early development.
+        # Switch to `alembic upgrade head` once migrations are added.
+        Base.metadata.create_all(bind=engine)
 
 
 if __name__ == "__main__":
