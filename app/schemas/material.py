@@ -9,3 +9,4 @@ class MaterialRead(BaseModel):
     filename: str
     content_type: str | None
     status: str
+    
