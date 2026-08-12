@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://buddylearn:buddylearn@localhost:5432/buddylearn"
     redis_url: str = "redis://localhost:6379/0"
     qdrant_url: str = "http://localhost:6333"
+    qdrant_api_key: str | None = None
 
     openai_api_key: str | None = None
 
