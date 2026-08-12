@@ -27,7 +27,7 @@ class VectorStoreError(Exception):
 @lru_cache
 def get_qdrant_client() -> QdrantClient:
     settings = get_settings()
-    return QdrantClient(url=settings.qdrant_url)
+    return QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
 
 
 def ensure_collection(client: QdrantClient | None = None) -> None:
