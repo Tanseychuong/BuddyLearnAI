@@ -2,12 +2,24 @@
 
 from app.schemas.course import CourseCreate, CourseRead
 from app.schemas.material import MaterialRead
+from app.schemas.quiz import (
+    Difficulty,
+    QuestionType,
+    QuizGenerateRequest,
+    QuizGenerateResponse,
+    QuizQuestion,
+)
 from app.schemas.user import TokenResponse, UserCreate, UserLogin, UserRead
 
 __all__ = [
     "CourseCreate",
     "CourseRead",
+    "Difficulty",
     "MaterialRead",
+    "QuestionType",
+    "QuizGenerateRequest",
+    "QuizGenerateResponse",
+    "QuizQuestion",
     "TokenResponse",
     "UserCreate",
     "UserLogin",
