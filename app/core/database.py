@@ -5,7 +5,7 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import get_settings
 
-
+## Database setup
 class Base(DeclarativeBase):
     """Base class for SQLAlchemy models."""
 
