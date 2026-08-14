@@ -35,7 +35,7 @@ def get_password_hash(password: str) -> str:
         return pwd_context.hash(password)
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
-
+# Function to create a JWT access token with an optional expiration time
 def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
     settings = get_settings()
     expire = datetime.now(UTC) + (
