@@ -46,7 +46,7 @@ def create_access_token(subject: str, expires_delta: timedelta | None = None) ->
         return jwt.encode(payload, settings.secret_key, algorithm=settings.jwt_algorithm)
     return _encode_unsigned_payload(payload)
 
-
+# Function to decode a JWT access token and retrieve the subject (user identifier)
 def decode_access_token(token: str) -> str | None:
     settings = get_settings()
     if jwt:
