@@ -23,6 +23,7 @@ from app.core.config import get_settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") if CryptContext else None
 
 
+# Function to verify a plain password against a hashed password
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     if pwd_context:
         return pwd_context.verify(plain_password, hashed_password)
