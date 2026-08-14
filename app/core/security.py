@@ -59,7 +59,7 @@ def decode_access_token(token: str) -> str | None:
     subject = payload.get("sub")
     return subject if isinstance(subject, str) else None
 
-
+# Helper function to encode a payload into a base64 URL-safe string without signing
 def _encode_unsigned_payload(payload: dict[str, Any]) -> str:
     serializable_payload = {
         key: value.isoformat() if isinstance(value, datetime) else value
