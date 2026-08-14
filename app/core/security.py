@@ -29,7 +29,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return pwd_context.verify(plain_password, hashed_password)
     return hmac.compare_digest(get_password_hash(plain_password), hashed_password)
 
-
+# Function to hash a password using bcrypt if available, otherwise using SHA-256
 def get_password_hash(password: str) -> str:
     if pwd_context:
         return pwd_context.hash(password)
