@@ -38,6 +38,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserRead:
     return UserRead.model_validate(user)
 
 
+# login router for the fast api
 @router.post("/login", response_model=TokenResponse)
 def login(payload: UserLogin, db: Session = Depends(get_db)) -> TokenResponse:
     user = user_repository.get_by_email(db, payload.email)
