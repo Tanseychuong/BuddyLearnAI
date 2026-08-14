@@ -19,7 +19,7 @@ except ModuleNotFoundError:
 
 from app.core.config import get_settings
 
-
+# Initialize password hashing context using bcrypt if available
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") if CryptContext else None
 
 
