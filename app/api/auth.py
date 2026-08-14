@@ -20,7 +20,7 @@ from app.schemas import TokenResponse, UserCreate, UserLogin, UserRead
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-
+# register router for the fast api
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserRead:
     if user_repository.get_by_email(db, payload.email):
