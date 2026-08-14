@@ -14,7 +14,7 @@ settings = get_settings()
 engine = create_engine(settings.database_url, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
+# Dependency to get a database session
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
