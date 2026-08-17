@@ -18,7 +18,7 @@ _SENTENCE_BOUNDARY_RE = re.compile(r"(?<=[.!?])\s+")
 def _normalize(text: str) -> str:
     return _WHITESPACE_RE.sub(" ", text).strip()
 
-
+# Split text into overlapping chunks of a specified size, with a specified overlap.
 def chunk_text(
     text: str,
     chunk_size: int = DEFAULT_CHUNK_SIZE,
