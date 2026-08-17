@@ -81,5 +81,5 @@ def on_startup() -> None:
 # Running the app using Uvicorn when executed directly
 if __name__ == "__main__":
     import uvicorn
-
+    # Running the app with Uvicorn
     uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
