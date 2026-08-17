@@ -21,6 +21,8 @@ from app.api import (
     exams,
     recommendations,
 )
+
+# Importing configuration and database modules
 from app.core.config import get_settings
 from app.core.database import Base, engine
 from app import models  # noqa: F401  (registers model classes on Base.metadata)
