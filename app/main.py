@@ -39,6 +39,7 @@ app = FastAPI(
     openapi_url=None,
 )
 
+# Adding CORS middleware to handle cross-origin requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],      # Restrict this in production
@@ -46,6 +47,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 # Including routers for different API endpoints
 app.include_router(auth.router)
 app.include_router(users.router)
