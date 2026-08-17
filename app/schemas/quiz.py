@@ -12,7 +12,7 @@ class QuizGenerateRequest(BaseModel):
     difficulty: Difficulty = "mixed"
     question_count: int = Field(default=10, ge=1, le=50)
 
-
+# Model for a single quiz question
 class QuizQuestion(BaseModel):
     prompt: str
     type: QuestionType
