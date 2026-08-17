@@ -71,6 +71,7 @@ def _encode_unsigned_payload(payload: dict[str, Any]) -> str:
     return base64.urlsafe_b64encode(raw).decode("utf-8")
 
 
+# Helper function to decode a base64 URL-safe string into a payload dictionary
 def _decode_unsigned_payload(token: str) -> dict[str, Any]:
     try:
         raw = base64.urlsafe_b64decode(token.encode("utf-8"))
