@@ -31,6 +31,7 @@ def get_course_context(course_id: int, query: str, top_k: int = DEFAULT_TOP_K) -
 
     query_vector = embed_query(query)  # raises EmbeddingError on failure, not caught here
 
+    # Query Qdrant for the top-k points most similar to the query vector, filtered by course_id.
     try:
         results = client.query_points(
             collection_name=COLLECTION_NAME,
@@ -43,4 +44,5 @@ def get_course_context(course_id: int, query: str, top_k: int = DEFAULT_TOP_K) -
     except Exception as exc:
         raise VectorStoreError(f"Could not retrieve course context from Qdrant: {exc}") from exc
 
+    # Return the text of each point that has a payload (some may not, e.g. if they were deleted).
     return [point.payload["text"] for point in results.points if point.payload]
