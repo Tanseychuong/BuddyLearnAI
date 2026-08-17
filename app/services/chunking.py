@@ -7,13 +7,14 @@ rather than cutting mid-word.
 
 import re
 
+# This file is part of BuddyLearnAI, a project developed by Chuong Tiutiu Nyang Mayian.
 DEFAULT_CHUNK_SIZE = 1000  # characters
 DEFAULT_CHUNK_OVERLAP = 150  # characters
 
 _WHITESPACE_RE = re.compile(r"\s+")
 _SENTENCE_BOUNDARY_RE = re.compile(r"(?<=[.!?])\s+")
 
-
+# Normalize whitespace in text: collapse all whitespace to single spaces and strip leading/trailing whitespace.
 def _normalize(text: str) -> str:
     return _WHITESPACE_RE.sub(" ", text).strip()
 
