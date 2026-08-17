@@ -29,10 +29,12 @@ def chunk_text(
     if overlap < 0 or overlap >= chunk_size:
         raise ValueError("overlap must be >= 0 and less than chunk_size")
 
+# Normalize the input text and return an empty list if it is empty after normalization.
     normalized = _normalize(text)
     if not normalized:
         return []
 
+# Split normalized text into sentences using regex, then build chunks that respect the chunk_size and overlap constraints.
     sentences = _SENTENCE_BOUNDARY_RE.split(normalized)
 
     chunks: list[str] = []
