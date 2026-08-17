@@ -13,7 +13,7 @@ from app.services.vector_store import COLLECTION_NAME, VectorStoreError, get_qdr
 
 DEFAULT_TOP_K = 15
 
-
+# 
 def get_course_context(course_id: int, query: str, top_k: int = DEFAULT_TOP_K) -> list[str]:
     """Return the top-k chunk texts for a course most relevant to `query`.
 
