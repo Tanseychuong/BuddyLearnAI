@@ -59,17 +59,17 @@ app.include_router(recommendations.router)
 
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-
+# Defining the root endpoint to serve the frontend index.html
 @app.get("/")
 async def root() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")
 
-
+# Defining a health check endpoint
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "healthy"}
 
-
+# Defining the startup event to create database tables in development mode
 @app.on_event("startup")
 def on_startup() -> None:
     settings = get_settings()
@@ -78,7 +78,7 @@ def on_startup() -> None:
         # Switch to `alembic upgrade head` once migrations are added.
         Base.metadata.create_all(bind=engine)
 
-
+# Running the app using Uvicorn when executed directly
 if __name__ == "__main__":
     import uvicorn
 
