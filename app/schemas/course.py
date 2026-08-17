@@ -1,12 +1,12 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-
+# Model for creating a new course
 class CourseCreate(BaseModel):
     code: str = Field(min_length=2, max_length=20, examples=["CS204"])
     title: str = Field(min_length=2, max_length=160, examples=["Data Structures"])
     description: str | None = None
 
-
+## Model for reading course information
 class CourseRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
