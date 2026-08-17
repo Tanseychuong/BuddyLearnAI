@@ -6,6 +6,8 @@ import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+
+# Attempt to import JWT and password hashing libraries, with fallbacks if not available
 try:
     from jose import JWTError, jwt
 except ModuleNotFoundError:
