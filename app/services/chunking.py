@@ -38,6 +38,7 @@ def chunk_text(
     chunks: list[str] = []
     current = ""
 
+    # Iterate over sentences, building chunks that respect the chunk_size and overlap constraints.
     for sentence in sentences:
         candidate = f"{current} {sentence}".strip() if current else sentence
 
