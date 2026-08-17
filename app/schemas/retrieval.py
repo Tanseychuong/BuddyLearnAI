@@ -6,6 +6,7 @@ semantically relevant chunks previously stored by the document-processing
 pipeline (see app/workers/tasks.py).
 """
 
+# This file is part of BuddyLearnAI, a project developed by Chuong Tiutiu Nyang Mayian.
 from qdrant_client.models import FieldCondition, Filter, MatchValue
 
 from app.services.embeddings import embed_query
