@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 if __package__ is None or __package__ == "":
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+# Importing necessary modules and routers for the FastAPI application
 from app.api import (
     auth,
     users,
