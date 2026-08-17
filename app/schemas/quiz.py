@@ -2,10 +2,11 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+# Define the types for question types and difficulty levels
 QuestionType = Literal["mcq", "true_false", "fill_blank", "short_answer", "essay"]
 Difficulty = Literal["easy", "medium", "hard", "mixed"]
 
-
+# Model for the request to generate a quiz
 class QuizGenerateRequest(BaseModel):
     course_id: int
     question_types: list[QuestionType] = Field(default_factory=lambda: ["mcq"])
