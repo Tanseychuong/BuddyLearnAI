@@ -19,7 +19,7 @@ class QuizQuestion(BaseModel):
     options: list[str] = Field(default_factory=list)
     answer: str
 
-
+# Model for the response containing the generated quiz
 class QuizGenerateResponse(BaseModel):
     course_id: int
     difficulty: Difficulty
