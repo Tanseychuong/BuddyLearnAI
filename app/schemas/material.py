@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 
+## Model for reading material information
 class MaterialRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
