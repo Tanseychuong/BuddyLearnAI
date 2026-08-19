@@ -4,11 +4,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Log in | BuddyLearnAI</title>
+    <!-- React & ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <!-- Babel for JSX compilation in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #f0f2f5;
+            color: #1c1e21;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        header {
+            height: 82px;
+            display: flex;
+            align-items: center;
+            padding: 0 8%;
+            background: #4267b2;
+            color: #fff;
+        }
+
+        .brand {
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        main {
+            width: 396px;
+            margin: 72px auto 0;
+            text-align: center;
+        }
+
+        .card {
+            padding: 24px 24px 28px;
+            background: #fff;
+            border: 1px solid #dddfe2;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            font-size: 20px;
+            font-weight: 400;
+        }
+
+        input {
+            width: 100%;
+            margin-bottom: 12px;
+            padding: 14px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            border-color: #4267b2;
+            outline: 2px solid #e7f3ff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: 0;
+            border-radius: 5px;
+            background: #4267b2;
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        button:hover {
+            background: #365899;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        a {
+            color: #385898;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            color: #96999e;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            flex: 1;
+            background: #dddfe2;
+        }
+
+        .create {
+            width: auto;
+            padding: 11px 18px;
+            background: #42b72a;
+            font-size: 15px;
+        }
+
+        .create:hover {
+            background: #36a420;
+        }
+
+        .notice {
+            margin-top: 20px;
+            color: #606770;
+            font-size: 13px;
+        }
+
+        .error-alert {
+            margin-bottom: 12px;
+            padding: 10px;
+            background-color: #fde8e8;
+            border: 1px solid #f8b4b4;
+            color: #9b1c1c;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 0 20px;
+            }
+
+            main {
+                width: auto;
+                margin: 42px 16px 0;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="login-guidance-container">
+    <div id="root"></div>
 
-    </div>
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Header() {
+            return (
+                <header>
+                    <div className="brand">BuddyLearnAI</div>
+                </header>
+            );
+        }
+
+        function LoginForm() {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError('');
+                setLoading(true);
+
+                try {
+                    const response = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.detail || 'Invalid email or password.');
+                    }
+
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    window.location.href = '/static/guidance/dashboard.html';
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <main>
+                    <section className="card" aria-labelledby="login-title">
+                        <h1 id="login-title">Log in to BuddyLearnAI</h1>
+
+                        {error && <div className="error-alert">{error}</div>}
+
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="Email address"
+                                autoComplete="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Password"
+                                autoComplete="current-password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button type="submit" disabled={loading}>
+                                {loading ? 'Logging in...' : 'Log In'}
+                            </button>
+                        </form>
+                        <p><a href="#forgot-password">Forgotten password?</a></p>
+                        <div className="divider">or</div>
+                        <button className="create" type="button">Create New Account</button>
+                    </section>
+                    <p className="notice">Connect with your learning community.</p>
+                </main>
+            );
+        }
+
+        function App() {
+            return (
+                <React.Fragment>
+                    <Header />
+                    <LoginForm />
+                </React.Fragment>
+            );
+        }
+
+        const rootElement = document.getElementById('root');
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
