@@ -20,6 +20,8 @@ router = APIRouter(prefix="/quizzes", tags=["Quizzes"])
 # retrieve relevant course material chunks from Qdrant, then generate grounded
 # questions from them with Gemini.
 @router.post("/generate", response_model=QuizGenerateResponse)
+
+# This function generates a quiz based on the provided request payload, which includes course ID, difficulty level, question types, and question count. It retrieves the relevant course material chunks and generates questions accordingly.
 def generate_quiz(
     payload: QuizGenerateRequest,
     current_user: User = Depends(get_current_user),
