@@ -32,6 +32,27 @@ from app import models  # noqa: F401  (registers model classes on Base.metadata)
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 
+import logging
+from contextlib import asynccontextmanager
+
+logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    settings = get_settings()
+    if settings.environment == "development":
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("PostgreSQL database tables verified and created successfully.")
+        except Exception as exc:
+            logger.warning(
+                "Could not connect to PostgreSQL on startup (%s). "
+                "Ensure Docker container is running (`docker compose up -d postgres`). "
+                "Serving static frontend pages.",
+                exc
+            )
+    yield
+
 # Defining the app info
 app = FastAPI(
     title="AI Learning Buddy API",
@@ -40,6 +61,7 @@ app = FastAPI(
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
+    lifespan=lifespan,
 )
 
 # Adding CORS middleware to handle cross-origin requests
@@ -98,17 +120,7 @@ async def student_login() -> FileResponse:
 async def health() -> dict[str, str]:
     return {"status": "healthy"}
 
-# Defining the startup event to create database tables in development mode
-@app.on_event("startup")
-def on_startup() -> None:
-    settings = get_settings()
-    if settings.environment == "development":
-        # Stand-in for Alembic migrations during early development.
-        # Switch to `alembic upgrade head` once migrations are added.
-        Base.metadata.create_all(bind=engine)
-
 # Running the app using Uvicorn when executed directly
 if __name__ == "__main__":
     import uvicorn
-    # Running the app with Uvicorn
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
