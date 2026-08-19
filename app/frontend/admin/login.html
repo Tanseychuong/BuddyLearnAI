@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin System Login | BuddyLearnAI</title>
+  <title>Admin Login | BuddyLearnAI Control</title>
   <link rel="stylesheet" href="/static/admin/app.css">
   <!-- React 18 & ReactDOM UMD -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -14,13 +14,13 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState } = React;
 
     function AdminLoginForm() {
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
       const [securityPin, setSecurityPin] = useState('8849');
-      const [usePin, setUsePin] = useState(false);
+      const [showPin, setShowPin] = useState(false);
       const [error, setError] = useState('');
       const [loading, setLoading] = useState(false);
 
@@ -37,7 +37,6 @@
         setLoading(true);
 
         try {
-          // Attempt authentication via API
           const res = await fetch('/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -45,87 +44,80 @@
           });
 
           if (!res.ok) {
-            // For admin access, if API user isn't in DB yet, support seamless admin demo access
             if (email === 'admin@buddylearn.ai' && password === 'AdminPass123!') {
               localStorage.setItem('admin_token', 'demo_admin_jwt_token_9981');
-              localStorage.setItem('admin_user', JSON.stringify({ name: 'System Admin', role: 'admin', email }));
+              localStorage.setItem('admin_user', JSON.stringify({ name: 'System Administrator', role: 'admin', email }));
               window.location.href = '/admin';
               return;
             }
-            const data = await res.json().catch(() => ({ detail: 'Invalid credentials' }));
+            const data = await res.json().catch(() => ({ detail: 'Invalid admin credentials' }));
             throw new Error(data.detail || 'Authentication failed');
           }
 
           const data = await res.json();
           localStorage.setItem('access_token', data.access_token);
           localStorage.setItem('admin_token', data.access_token);
-          localStorage.setItem('admin_user', JSON.stringify({ name: 'System Admin', role: 'admin', email }));
+          localStorage.setItem('admin_user', JSON.stringify({ name: 'System Administrator', role: 'admin', email }));
           window.location.href = '/admin';
         } catch (err) {
-          setError(err.message || 'Login failed. Please check your credentials.');
+          setError(err.message || 'Login failed. Verify admin credentials.');
         } finally {
           setLoading(false);
         }
       };
 
       return (
-        <div className="login-wrapper">
-          <div className="glass-panel login-card">
-            <div className="login-header">
-              <div className="login-icon">⚡</div>
-              <h1 className="login-title">Admin Control Center</h1>
-              <p className="login-subtitle">System Telemetry & Platform Governance</p>
-            </div>
+        <div className="login-bg">
+          <div className="login-brand-header">
+            <h1 className="login-brand-name">BuddyLearnAI</h1>
+            <p className="login-brand-sub">System Administrator Control Center</p>
+          </div>
 
+          <div className="fb-card login-fb-card">
             {error && (
-              <div className="alert-box error">
-                <span>⚠️ {error}</span>
+              <div style={{ padding: '10px 12px', background: '#fde8e8', border: '1px solid #f8b4b4', color: '#9b1c1c', borderRadius: '6px', fontSize: '13px', marginBottom: '14px' }}>
+                ⚠️ {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="email">Admin Email Address</label>
+              <div style={{ marginBottom: '12px' }}>
                 <input
-                  id="email"
                   type="email"
-                  className="input-field"
-                  placeholder="admin@buddylearn.ai"
+                  className="fb-input"
+                  placeholder="Admin Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="password">Security Password</label>
+              <div style={{ marginBottom: '12px' }}>
                 <input
-                  id="password"
                   type="password"
-                  className="input-field"
-                  placeholder="••••••••••••"
+                  className="fb-input"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label htmlFor="securityPin" style={{ margin: 0 }}>Two-Factor Security PIN</label>
+              <div style={{ marginBottom: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '12px', color: '#65676b' }}>Two-Factor Security PIN</span>
                   <button
                     type="button"
-                    onClick={() => setUsePin(!usePin)}
-                    style={{ background: 'none', border: 'none', color: '#a5b4fc', fontSize: '12px', cursor: 'pointer' }}
+                    onClick={() => setShowPin(!showPin)}
+                    style={{ background: 'none', border: 'none', color: '#0866ff', fontSize: '12px', cursor: 'pointer' }}
                   >
-                    {usePin ? 'Hide PIN' : 'Optional PIN'}
+                    {showPin ? 'Hide PIN' : 'Security PIN'}
                   </button>
                 </div>
-                {usePin && (
+                {showPin && (
                   <input
-                    id="securityPin"
                     type="text"
-                    className="input-field"
+                    className="fb-input"
                     placeholder="Enter 4-digit PIN"
                     value={securityPin}
                     onChange={(e) => setSecurityPin(e.target.value)}
@@ -134,23 +126,30 @@
                 )}
               </div>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', marginBottom: '1rem' }} disabled={loading}>
-                {loading ? 'Authenticating...' : 'Access Admin Dashboard ➔'}
+              <button
+                type="submit"
+                className="btn-fb-primary"
+                style={{ width: '100%', padding: '12px', fontSize: '16px', marginBottom: '12px' }}
+                disabled={loading}
+              >
+                {loading ? 'Authenticating...' : 'Log In as Admin'}
               </button>
+
+              <hr style={{ border: 'none', borderTop: '1px solid #e4e6eb', margin: '14px 0' }} />
 
               <button
                 type="button"
-                className="btn-secondary"
-                style={{ width: '100%', justifyContent: 'center' }}
+                className="btn-fb-green"
+                style={{ width: '100%', padding: '10px', fontSize: '14px' }}
                 onClick={fillDemoAdmin}
               >
                 🔑 Auto-Fill Demo Admin Credentials
               </button>
             </form>
+          </div>
 
-            <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
-              Protected System Area • BuddyLearnAI v1.0 Security Protocol
-            </div>
+          <div style={{ marginTop: '20px', fontSize: '12px', color: '#8a8d91', textAlign: 'center' }}>
+            Protected Administrator Portal • BuddyLearnAI Platform
           </div>
         </div>
       );

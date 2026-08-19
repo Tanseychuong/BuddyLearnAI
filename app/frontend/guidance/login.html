@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Academic Guidance Portal | BuddyLearnAI</title>
+  <title>Counselor Login | Academic Guidance Portal</title>
   <link rel="stylesheet" href="/static/guidance/app.css">
   <!-- React 18 & ReactDOM UMD -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -57,73 +57,75 @@
           localStorage.setItem('guidance_user', JSON.stringify({ name: 'Dr. Kwame Ansah', role: 'guidance', email }));
           window.location.href = '/guidance';
         } catch (err) {
-          setError(err.message || 'Login failed. Check your counselor email and password.');
+          setError(err.message || 'Login failed. Check counselor email and password.');
         } finally {
           setLoading(false);
         }
       };
 
       return (
-        <div className="login-wrapper">
-          <div className="glass-panel login-card">
-            <div className="login-header">
-              <div className="login-icon">🎓</div>
-              <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '24px', fontWeight: 700, marginBottom: '6px' }}>
-                Academic Guidance Portal
-              </h1>
-              <p style={{ fontSize: '14px', color: '#94a3b8' }}>Student Intervention & Learning Analytics</p>
-            </div>
+        <div className="login-bg">
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: 800, color: '#0866ff', letterSpacing: '-0.5px' }}>
+              BuddyLearnAI
+            </h1>
+            <p style={{ fontSize: '15px', color: '#65676b' }}>Academic Counselor & Advisor Portal</p>
+          </div>
 
+          <div className="fb-card" style={{ width: '100%', maxWidth: '396px', padding: '20px' }}>
             {error && (
-              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)', color: '#fca5a5', fontSize: '13px', marginBottom: '1rem' }}>
+              <div style={{ padding: '10px 12px', background: '#fde8e8', border: '1px solid #f8b4b4', color: '#9b1c1c', borderRadius: '6px', fontSize: '13px', marginBottom: '14px' }}>
                 ⚠️ {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="email">Counselor / Instructor Email</label>
+              <div style={{ marginBottom: '12px' }}>
                 <input
-                  id="email"
                   type="email"
-                  className="input-field"
-                  placeholder="guidance@ashesi.edu.gh"
+                  className="fb-input"
+                  placeholder="Counselor Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
+              <div style={{ marginBottom: '14px' }}>
                 <input
-                  id="password"
                   type="password"
-                  className="input-field"
-                  placeholder="••••••••••••"
+                  className="fb-input"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', marginBottom: '1rem' }} disabled={loading}>
-                {loading ? 'Signing In...' : 'Enter Counselor Portal ➔'}
+              <button
+                type="submit"
+                className="btn-fb-primary"
+                style={{ width: '100%', padding: '12px', fontSize: '16px', marginBottom: '12px' }}
+                disabled={loading}
+              >
+                {loading ? 'Signing In...' : 'Log In as Counselor'}
               </button>
+
+              <hr style={{ border: 'none', borderTop: '1px solid #e4e6eb', margin: '14px 0' }} />
 
               <button
                 type="button"
-                className="btn-secondary"
-                style={{ width: '100%', justifyContent: 'center' }}
+                className="btn-fb-secondary"
+                style={{ width: '100%', padding: '10px', fontSize: '14px', justifyContent: 'center' }}
                 onClick={fillDemoCounselor}
               >
                 🔑 Auto-Fill Demo Counselor Credentials
               </button>
             </form>
+          </div>
 
-            <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
-              Academic Advisory Interface • BuddyLearnAI Platform
-            </div>
+          <div style={{ marginTop: '20px', fontSize: '12px', color: '#8a8d91', textAlign: 'center' }}>
+            Academic Intervention & Student Guidance Portal
           </div>
         </div>
       );

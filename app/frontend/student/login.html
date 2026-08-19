@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Login & Register | BuddyLearnAI</title>
+  <title>Student Login & Sign Up | BuddyLearnAI</title>
   <link rel="stylesheet" href="/static/student/styles.css">
   <!-- React 18 & ReactDOM UMD -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -21,7 +21,6 @@
       const [fullName, setFullName] = useState('');
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
-      const [showPassword, setShowPassword] = useState(false);
       const [error, setError] = useState('');
       const [successMsg, setSuccessMsg] = useState('');
       const [loading, setLoading] = useState(false);
@@ -61,10 +60,8 @@
 
           const data = await res.json();
           if (isRegister) {
-            setSuccessMsg('Account created successfully! Logging you in...');
-            setTimeout(() => {
-              setIsRegister(false);
-            }, 1200);
+            setSuccessMsg('Account created! Please log in.');
+            setIsRegister(false);
           } else {
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('student_token', data.access_token);
@@ -72,44 +69,41 @@
             window.location.href = '/student';
           }
         } catch (err) {
-          setError(err.message || 'Login failed. Please verify credentials.');
+          setError(err.message || 'Login failed. Verify credentials.');
         } finally {
           setLoading(false);
         }
       };
 
       return (
-        <div className="login-wrapper">
-          <div className="glass-panel login-card">
-            <div className="login-header">
-              <div className="login-icon">🧠</div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '24px', fontWeight: 800, marginBottom: '6px' }}>
-                {isRegister ? 'Create Student Account' : 'Log In to BuddyLearnAI'}
-              </h1>
-              <p style={{ fontSize: '14px', color: '#94a3b8' }}>Personalized AI Study Workspace</p>
-            </div>
+        <div className="login-bg">
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <h1 style={{ fontSize: '36px', fontWeight: 800, color: '#0866ff', letterSpacing: '-0.5px' }}>
+              BuddyLearnAI
+            </h1>
+            <p style={{ fontSize: '16px', color: '#65676b' }}>Personalized AI Learning Companion</p>
+          </div>
 
+          <div className="fb-card" style={{ width: '100%', maxWidth: '396px', padding: '20px' }}>
             {error && (
-              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)', color: '#fca5a5', fontSize: '13px', marginBottom: '1rem' }}>
+              <div style={{ padding: '10px 12px', background: '#fde8e8', border: '1px solid #f8b4b4', color: '#9b1c1c', borderRadius: '6px', fontSize: '13px', marginBottom: '14px' }}>
                 ⚠️ {error}
               </div>
             )}
 
             {successMsg && (
-              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#6ee7b7', fontSize: '13px', marginBottom: '1rem' }}>
+              <div style={{ padding: '10px 12px', background: '#e6f4ea', color: '#137333', borderRadius: '6px', fontSize: '13px', marginBottom: '14px' }}>
                 ✔ {successMsg}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
               {isRegister && (
-                <div className="form-group">
-                  <label htmlFor="fullName">Full Name</label>
+                <div style={{ marginBottom: '12px' }}>
                   <input
-                    id="fullName"
                     type="text"
-                    className="input-field"
-                    placeholder="Ama Owusu"
+                    className="fb-input"
+                    placeholder="Full Name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -117,63 +111,57 @@
                 </div>
               )}
 
-              <div className="form-group">
-                <label htmlFor="email">Student Email</label>
+              <div style={{ marginBottom: '12px' }}>
                 <input
-                  id="email"
                   type="email"
-                  className="input-field"
-                  placeholder="student@ashesi.edu.gh"
+                  className="fb-input"
+                  placeholder="Student Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <label htmlFor="password" style={{ margin: 0 }}>Password</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ background: 'none', border: 'none', color: '#a5b4fc', fontSize: '12px', cursor: 'pointer' }}
-                  >
-                    {showPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
+              <div style={{ marginBottom: '14px' }}>
                 <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  className="input-field"
-                  placeholder="••••••••••••"
+                  type="password"
+                  className="fb-input"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', marginBottom: '1rem' }} disabled={loading}>
-                {loading ? 'Processing...' : isRegister ? 'Register Account ➔' : 'Sign In ➔'}
+              <button
+                type="submit"
+                className="btn-fb-primary"
+                style={{ width: '100%', padding: '12px', fontSize: '16px', marginBottom: '12px' }}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : isRegister ? 'Create Account' : 'Log In'}
               </button>
 
               {!isRegister && (
                 <button
                   type="button"
-                  className="btn-secondary"
-                  style={{ width: '100%', justifyContent: 'center', marginBottom: '1rem' }}
+                  className="btn-fb-secondary"
+                  style={{ width: '100%', padding: '10px', fontSize: '14px', justifyContent: 'center', marginBottom: '12px' }}
                   onClick={fillDemoStudent}
                 >
                   🔑 Auto-Fill Demo Student Credentials
                 </button>
               )}
 
-              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+              <hr style={{ border: 'none', borderTop: '1px solid #e4e6eb', margin: '14px 0' }} />
+
+              <div style={{ textAlign: 'center' }}>
                 <button
                   type="button"
+                  style={{ background: '#42b72a', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '14px' }}
                   onClick={() => { setIsRegister(!isRegister); setError(''); setSuccessMsg(''); }}
-                  style={{ background: 'none', border: 'none', color: '#a5b4fc', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
                 >
-                  {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register"}
+                  {isRegister ? 'Already have an account? Log In' : 'Create New Account'}
                 </button>
               </div>
             </form>

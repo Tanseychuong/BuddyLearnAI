@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guidance Dashboard | Academic Advisory</title>
+  <title>Guidance Counselor Dashboard | BuddyLearnAI</title>
   <link rel="stylesheet" href="/static/guidance/app.css">
   <!-- React 18 & ReactDOM UMD -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -14,7 +14,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState } = React;
 
     function GuidanceDashboard() {
       const [activeTab, setActiveTab] = useState('roster');
@@ -23,47 +23,31 @@
       const [selectedStudent, setSelectedStudent] = useState(null);
       const [isDrawerOpen, setIsDrawerOpen] = useState(false);
       const [interventionNote, setInterventionNote] = useState('');
-      const [noteSavedAlert, setNoteSavedAlert] = useState(false);
+      const [savedAlert, setSavedAlert] = useState(false);
 
-      // Realistic student roster data
       const [students, setStudents] = useState([
-        { id: 'std-101', name: 'Ama Owusu', email: 'ama.owusu@ashesi.edu.gh', course: 'CS312 Algorithm Analysis', readiness: 42, streak: 2, risk: 'High Risk', weakTopic: 'Dynamic Programming', lastSeen: 'Today 09:12' },
-        { id: 'std-102', name: 'Kofi Mensah', email: 'kofi.m@ashesi.edu.gh', course: 'CS312 Algorithm Analysis', readiness: 58, streak: 4, risk: 'Medium Risk', weakTopic: 'Graph Shortest Path', lastSeen: 'Yesterday' },
-        { id: 'std-103', name: 'Yaa Asantewaa', email: 'yaa.a@ashesi.edu.gh', course: 'MATH201 Linear Algebra', readiness: 88, streak: 14, risk: 'Low Risk', weakTopic: 'Matrix Inversion', lastSeen: '2 hours ago' },
-        { id: 'std-104', name: 'Kwaku Duah', email: 'kwaku.d@ashesi.edu.gh', course: 'CS221 Data Structures', readiness: 36, streak: 0, risk: 'High Risk', weakTopic: 'AVL Tree Rotation', lastSeen: '3 days ago' },
-        { id: 'std-105', name: 'Abena Serwaa', email: 'abena.s@ashesi.edu.gh', course: 'CS312 Algorithm Analysis', readiness: 76, streak: 9, risk: 'Low Risk', weakTopic: 'Greedy Choice Property', lastSeen: 'Today 08:30' },
-        { id: 'std-106', name: 'Kwadwo Fosu', email: 'kwadwo.f@ashesi.edu.gh', course: 'MATH201 Linear Algebra', readiness: 52, streak: 3, risk: 'Medium Risk', weakTopic: 'Determinants', lastSeen: 'Yesterday' },
+        { id: 'std-101', name: 'Ama Owusu', email: 'ama.owusu@ashesi.edu.gh', course: 'CS312 Algorithm Analysis', readiness: 42, streak: 2, risk: 'High Risk', weakTopic: 'Dynamic Programming' },
+        { id: 'std-102', name: 'Kofi Mensah', email: 'kofi.m@ashesi.edu.gh', course: 'CS312 Algorithm Analysis', readiness: 58, streak: 4, risk: 'Medium Risk', weakTopic: 'Graph Shortest Path' },
+        { id: 'std-103', name: 'Yaa Asantewaa', email: 'yaa.a@ashesi.edu.gh', course: 'MATH201 Linear Algebra', readiness: 88, streak: 14, risk: 'Low Risk', weakTopic: 'Matrix Inversion' },
+        { id: 'std-104', name: 'Kwaku Duah', email: 'kwaku.d@ashesi.edu.gh', course: 'CS221 Data Structures', readiness: 36, streak: 0, risk: 'High Risk', weakTopic: 'AVL Tree Rotation' },
       ]);
 
-      const [consultationNotes, setConsultationNotes] = useState([
-        { id: 'note-1', student: 'Ama Owusu', date: '2026-03-12', topic: 'Dynamic Programming Practice', note: 'Recommended reviewing memoization state table definitions. Scheduled follow-up quiz for Friday.' },
-        { id: 'note-2', student: 'Kwaku Duah', date: '2026-03-10', topic: 'Study Schedule Reset', note: 'Created daily 25-min Pomodoro flashcard goal for tree balances.' }
+      const [notes, setNotes] = useState([
+        { id: 'note-1', student: 'Ama Owusu', date: '2026-03-12', topic: 'Dynamic Programming Practice', note: 'Recommended state table practice. Scheduled follow-up quiz for Friday.' }
       ]);
 
       const openIntervention = (student) => {
         setSelectedStudent(student);
-        setInterventionNote(`Advising Note for ${student.name}:\n- Priority focus on ${student.weakTopic}.\n- Recommend 15-minute daily flashcard review.\n- Target readiness score: 70%+`);
+        setInterventionNote(`Counselor Note for ${student.name}:\n- Priority review on ${student.weakTopic}.\n- Recommend 15-min daily flashcard goal.`);
         setIsDrawerOpen(true);
-        setNoteSavedAlert(false);
+        setSavedAlert(false);
       };
 
       const saveIntervention = (e) => {
         e.preventDefault();
-        if (!selectedStudent) return;
-
-        const newNote = {
-          id: `note-${Date.now()}`,
-          student: selectedStudent.name,
-          date: new Date().toISOString().split('T')[0],
-          topic: `Review: ${selectedStudent.weakTopic}`,
-          note: interventionNote
-        };
-
-        setConsultationNotes([newNote, ...consultationNotes]);
-        setNoteSavedAlert(true);
-        setTimeout(() => {
-          setIsDrawerOpen(false);
-        }, 1000);
+        setNotes([{ id: `note-${Date.now()}`, student: selectedStudent.name, date: 'Today', topic: selectedStudent.weakTopic, note: interventionNote }, ...notes]);
+        setSavedAlert(true);
+        setTimeout(() => setIsDrawerOpen(false), 800);
       };
 
       const filteredStudents = students.filter(s => {
@@ -79,331 +63,203 @@
       return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           {/* Header */}
-          <header className="guidance-header">
-            <div className="brand-container">
-              <div className="brand-badge">🎓</div>
-              <div>
-                <span className="brand-title">BuddyLearnAI</span>
-                <span className="counselor-tag" style={{ marginLeft: '10px' }}>Academic Advisor</span>
+          <header className="fb-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#0866ff', color: '#fff', fontWeight: 800, fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                b
               </div>
+              <span style={{ fontSize: '18px', fontWeight: 700, color: '#0866ff' }}>BuddyLearnAI</span>
+              <span style={{ background: '#e4e6eb', fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px' }}>Academic Counselor</span>
             </div>
 
-            <div className="header-actions">
-              <span style={{ fontSize: '13px', color: '#94a3b8' }}>
-                👤 <strong>Dr. Kwame Ansah</strong> (CS & Math Advisor)
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '13px', color: '#65676b', fontWeight: 600 }}>
+                🎓 Dr. Kwame Ansah
               </span>
-
-              <a href="/admin" className="btn-secondary">⚡ Admin Panel</a>
-              <a href="/student" className="btn-secondary">📚 Student Workspace</a>
-
               <button 
-                className="btn-secondary"
+                className="btn-fb-secondary"
                 onClick={() => {
                   localStorage.removeItem('guidance_token');
                   window.location.href = '/guidance/login';
                 }}
               >
-                🔒 Sign Out
+                🔒 Log Out
               </button>
             </div>
           </header>
 
           <main className="guidance-layout">
-            {/* Overview Metrics */}
-            <div className="metrics-grid">
-              <div className="glass-panel metric-card">
-                <div className="metric-title">Monitored Students</div>
-                <div className="metric-value">{students.length}</div>
-                <div style={{ fontSize: '12px', color: '#94a3b8' }}>Active across 3 courses</div>
+            {/* Top Metrics Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+              <div className="fb-card" style={{ padding: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#65676b', textTransform: 'uppercase' }}>Monitored Students</div>
+                <div style={{ fontSize: '26px', fontWeight: 700, margin: '4px 0' }}>{students.length}</div>
+                <div style={{ fontSize: '12px', color: '#65676b' }}>Active across 3 courses</div>
               </div>
 
-              <div className="glass-panel metric-card rose">
-                <div className="metric-title">At-Risk Alert Count</div>
-                <div className="metric-value">2</div>
-                <div style={{ fontSize: '12px', color: '#fca5a5' }}>Readiness score under 50%</div>
+              <div className="fb-card" style={{ padding: '16px', borderLeft: '4px solid #fa383e' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#65676b', textTransform: 'uppercase' }}>At-Risk Alert Count</div>
+                <div style={{ fontSize: '26px', fontWeight: 700, margin: '4px 0', color: '#c5221f' }}>2</div>
+                <div style={{ fontSize: '12px', color: '#c5221f' }}>Readiness score under 50%</div>
               </div>
 
-              <div className="glass-panel metric-card teal">
-                <div className="metric-title">Class Quiz Average</div>
-                <div className="metric-value">67.4%</div>
-                <div style={{ fontSize: '12px', color: '#6ee7b7' }}>↑ +3.2% from last week</div>
+              <div className="fb-card" style={{ padding: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#65676b', textTransform: 'uppercase' }}>Class Quiz Average</div>
+                <div style={{ fontSize: '26px', fontWeight: 700, margin: '4px 0', color: '#137333' }}>67.4%</div>
+                <div style={{ fontSize: '12px', color: '#137333' }}>↑ +3.2% from last week</div>
               </div>
 
-              <div className="glass-panel metric-card amber">
-                <div className="metric-title">Advising Sessions</div>
-                <div className="metric-value">{consultationNotes.length}</div>
-                <div style={{ fontSize: '12px', color: '#fcd34d' }}>Completed this term</div>
+              <div className="fb-card" style={{ padding: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#65676b', textTransform: 'uppercase' }}>Advising Sessions</div>
+                <div style={{ fontSize: '26px', fontWeight: 700, margin: '4px 0' }}>{notes.length}</div>
+                <div style={{ fontSize: '12px', color: '#65676b' }}>Completed this term</div>
               </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="tabs-navigation">
-              <button 
-                className={`tab-btn ${activeTab === 'roster' ? 'active' : ''}`}
-                onClick={() => setActiveTab('roster')}
-              >
-                <span>📊 Student Performance Roster</span>
-              </button>
+            {/* Content Tabs */}
+            <div className="fb-card" style={{ padding: 0, overflow: 'hidden' }}>
+              <div style={{ display: 'flex', gap: '4px', background: '#fff', borderBottom: '1px solid #e4e6eb', padding: '4px 8px 0' }}>
+                <button 
+                  style={{ padding: '12px 18px', background: 'none', border: 'none', borderBottom: activeTab === 'roster' ? '3px solid #0866ff' : '3px solid transparent', color: activeTab === 'roster' ? '#0866ff' : '#65676b', fontWeight: 600, cursor: 'pointer' }}
+                  onClick={() => setActiveTab('roster')}
+                >
+                  📊 Student Roster & Risk Tracking
+                </button>
 
-              <button 
-                className={`tab-btn ${activeTab === 'curriculum' ? 'active' : ''}`}
-                onClick={() => setActiveTab('curriculum')}
-              >
-                <span>📘 Curriculum & Study Materials</span>
-              </button>
-
-              <button 
-                className={`tab-btn ${activeTab === 'item' ? 'active' : ''}`}
-                onClick={() => setActiveTab('item')}
-              >
-                <span>🎯 Missed Quiz Questions & Trends</span>
-              </button>
-
-              <button 
-                className={`tab-btn ${activeTab === 'notes' ? 'active' : ''}`}
-                onClick={() => setActiveTab('notes')}
-              >
-                <span>📝 Counseling Session Notes</span>
-              </button>
-            </div>
-
-            {/* Tab 1: Student Roster */}
-            {activeTab === 'roster' && (
-              <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div>
-                    <h2 style={{ fontSize: '18px', fontWeight: 600 }}>Student Learning Roster</h2>
-                    <p style={{ fontSize: '13px', color: '#94a3b8' }}>Monitor quiz readiness, study streaks, and trigger academic interventions.</p>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <input
-                      type="text"
-                      className="input-field"
-                      placeholder="Search student or course..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      style={{ width: '240px' }}
-                    />
-
-                    <select
-                      className="input-field"
-                      style={{ width: '160px' }}
-                      value={riskFilter}
-                      onChange={(e) => setRiskFilter(e.target.value)}
-                    >
-                      <option value="all">All Risk Levels</option>
-                      <option value="high">High Risk Only</option>
-                      <option value="med">Medium Risk</option>
-                      <option value="low">Low Risk</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="table-container">
-                  <table className="guidance-table">
-                    <thead>
-                      <tr>
-                        <th>Student Name</th>
-                        <th>Course Code</th>
-                        <th>Readiness Score</th>
-                        <th>Study Streak</th>
-                        <th>Stumbling Topic</th>
-                        <th>Risk Badge</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredStudents.map(s => (
-                        <tr key={s.id}>
-                          <td>
-                            <strong>{s.name}</strong>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>{s.email}</div>
-                          </td>
-                          <td style={{ color: '#94a3b8' }}>{s.course}</td>
-                          <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <div className="progress-bar-container">
-                                <div 
-                                  className="progress-bar-fill" 
-                                  style={{ 
-                                    width: `${s.readiness}%`,
-                                    background: s.readiness < 50 ? '#f43f5e' : s.readiness < 70 ? '#f59e0b' : '#10b981'
-                                  }}
-                                />
-                              </div>
-                              <span style={{ fontWeight: 600, fontSize: '13px' }}>{s.readiness}%</span>
-                            </div>
-                          </td>
-                          <td>🔥 {s.streak} days</td>
-                          <td style={{ color: '#bae6fd' }}>{s.weakTopic}</td>
-                          <td>
-                            <span className={`badge ${s.risk === 'High Risk' ? 'high-risk' : s.risk === 'Medium Risk' ? 'med-risk' : 'low-risk'}`}>
-                              {s.risk}
-                            </span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn-secondary"
-                              style={{ padding: '6px 12px', fontSize: '12px' }}
-                              onClick={() => openIntervention(s)}
-                            >
-                              💡 Send Advice
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <button 
+                  style={{ padding: '12px 18px', background: 'none', border: 'none', borderBottom: activeTab === 'notes' ? '3px solid #0866ff' : '3px solid transparent', color: activeTab === 'notes' ? '#0866ff' : '#65676b', fontWeight: 600, cursor: 'pointer' }}
+                  onClick={() => setActiveTab('notes')}
+                >
+                  📝 Counseling Session Notes
+                </button>
               </div>
-            )}
 
-            {/* Tab 2: Curriculum & Materials */}
-            {activeTab === 'curriculum' && (
-              <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Curriculum & AI Study Guide Breakdown</h2>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '1.5rem' }}>Inspect generated course materials and key definition sets.</p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                  <div className="glass-panel" style={{ padding: '1.25rem', borderLeft: '4px solid #0ea5e9' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>CS312 Algorithm Analysis</h3>
-                    <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>Topic: Dynamic Programming & Graph Theory</p>
-                    <ul style={{ paddingLeft: '1.2rem', fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                      <li>Key Definition: Memoization vs Tabulation</li>
-                      <li>Formula: Bellman-Ford Shortest Path recurrence relation</li>
-                      <li>Common Pitfall: Forgetting base cases in recursive subproblems</li>
-                    </ul>
-                  </div>
-
-                  <div className="glass-panel" style={{ padding: '1.25rem', borderLeft: '4px solid #14b8a6' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>MATH201 Linear Algebra</h3>
-                    <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>Topic: Vector Spaces & Transformations</p>
-                    <ul style={{ paddingLeft: '1.2rem', fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                      <li>Key Definition: Eigenvalues and Characteristic Equation det(A - λI) = 0</li>
-                      <li>Formula: Matrix Inversion via Adjugate Formula</li>
-                      <li>Common Pitfall: Confusing Linear Independence with Orthogonality</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 3: Missed Quiz Questions */}
-            {activeTab === 'item' && (
-              <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Missed Quiz Questions Analysis</h2>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '1.5rem' }}>Questions most frequently answered incorrectly by students during AI quizzes.</p>
-
-                <div className="table-container">
-                  <table className="guidance-table">
-                    <thead>
-                      <tr>
-                        <th>Course</th>
-                        <th>Question Prompt</th>
-                        <th>Incorrect Rate</th>
-                        <th>Difficulty</th>
-                        <th>Primary Misconception</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong>CS312</strong></td>
-                        <td>"What is the time complexity of the Floyd-Warshall algorithm?"</td>
-                        <td><span className="badge high-risk">64% Wrong</span></td>
-                        <td>Medium</td>
-                        <td>Confusing O(V³) triple loop with Dijkstra O(E log V)</td>
-                      </tr>
-                      <tr>
-                        <td><strong>CS221</strong></td>
-                        <td>"When performing a Right Rotation on an AVL tree, which node becomes parent?"</td>
-                        <td><span className="badge med-risk">48% Wrong</span></td>
-                        <td>Hard</td>
-                        <td>Mixing up left-child pivot vs right-child pivot</td>
-                      </tr>
-                      <tr>
-                        <td><strong>MATH201</strong></td>
-                        <td>"If det(A) = 0, does the system Ax = b have a unique solution?"</td>
-                        <td><span className="badge med-risk">41% Wrong</span></td>
-                        <td>Easy</td>
-                        <td>Forgetting non-invertible matrix means 0 or infinite solutions</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 4: Counseling Notes */}
-            {activeTab === 'notes' && (
-              <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Counseling & Advising History</h2>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '1.5rem' }}>Saved session logs and personalized action plans for students.</p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {consultationNotes.map(n => (
-                    <div key={n.id} className="glass-panel" style={{ padding: '1.25rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <strong style={{ fontSize: '16px', color: '#7dd3fc' }}>👤 {n.student}</strong>
-                        <span style={{ fontSize: '12px', color: '#64748b' }}>📅 {n.date}</span>
-                      </div>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc', marginBottom: '6px' }}>
-                        Focus: {n.topic}
-                      </div>
-                      <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: '1.5' }}>
-                        {n.note}
-                      </p>
+              {activeTab === 'roster' && (
+                <div style={{ padding: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <h2 style={{ fontSize: '16px', fontWeight: 700 }}>Student Academic Roster</h2>
+                      <p style={{ fontSize: '13px', color: '#65676b' }}>Monitor readiness scores and trigger advising notes.</p>
                     </div>
-                  ))}
+
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <input
+                        className="fb-input"
+                        placeholder="Search student or course..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '220px' }}
+                      />
+
+                      <select
+                        className="fb-input"
+                        style={{ width: '160px' }}
+                        value={riskFilter}
+                        onChange={(e) => setRiskFilter(e.target.value)}
+                      >
+                        <option value="all">All Risk Levels</option>
+                        <option value="high">High Risk</option>
+                        <option value="med">Medium Risk</option>
+                        <option value="low">Low Risk</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ background: '#f7f8fa', borderBottom: '1px solid #e4e6eb', color: '#65676b', fontSize: '12px' }}>
+                          <th style={{ padding: '12px 16px' }}>Student Name</th>
+                          <th style={{ padding: '12px 16px' }}>Course</th>
+                          <th style={{ padding: '12px 16px' }}>Readiness Score</th>
+                          <th style={{ padding: '12px 16px' }}>Stumbling Topic</th>
+                          <th style={{ padding: '12px 16px' }}>Risk Level</th>
+                          <th style={{ padding: '12px 16px' }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredStudents.map(s => (
+                          <tr key={s.id} style={{ borderBottom: '1px solid #e4e6eb' }}>
+                            <td style={{ padding: '12px 16px' }}><strong>{s.name}</strong></td>
+                            <td style={{ padding: '12px 16px', color: '#65676b' }}>{s.course}</td>
+                            <td style={{ padding: '12px 16px', fontWeight: 700, color: s.readiness < 50 ? '#c5221f' : '#137333' }}>{s.readiness}%</td>
+                            <td style={{ padding: '12px 16px', color: '#0866ff' }}>{s.weakTopic}</td>
+                            <td style={{ padding: '12px 16px' }}>
+                              <span className={`badge-risk ${s.risk === 'High Risk' ? 'high' : s.risk === 'Medium Risk' ? 'medium' : 'low'}`}>
+                                {s.risk}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px 16px' }}>
+                              <button
+                                className="btn-fb-secondary"
+                                style={{ padding: '4px 10px', fontSize: '12px' }}
+                                onClick={() => openIntervention(s)}
+                              >
+                                💡 Send Advice
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {activeTab === 'notes' && (
+                <div style={{ padding: '16px' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Advising Session Logs</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {notes.map(n => (
+                      <div key={n.id} className="fb-card" style={{ padding: '14px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <strong style={{ color: '#0866ff' }}>👤 {n.student}</strong>
+                          <span style={{ fontSize: '12px', color: '#65676b' }}>📅 {n.date}</span>
+                        </div>
+                        <p style={{ fontSize: '13px', color: '#050505' }}>{n.note}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </main>
 
           {/* Intervention Drawer */}
           {isDrawerOpen && selectedStudent && (
-            <div className="drawer-overlay" onClick={() => setIsDrawerOpen(false)}>
-              <div className="drawer-content" onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: 600 }}>Intervention Drawer</h3>
-                  <button className="btn-secondary" onClick={() => setIsDrawerOpen(false)}>✕ Close</button>
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }}>
+              <div style={{ width: '100%', maxWidth: '480px', height: '100vh', background: '#fff', padding: '20px', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Record Academic Advice</h3>
+                  <button className="btn-fb-secondary" onClick={() => setIsDrawerOpen(false)}>✕ Close</button>
                 </div>
 
-                <div style={{ marginBottom: '1.5rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px' }}>
-                  <strong style={{ fontSize: '16px', display: 'block' }}>{selectedStudent.name}</strong>
-                  <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
-                    Course: {selectedStudent.course} • Readiness: <span style={{ color: selectedStudent.readiness < 50 ? '#f43f5e' : '#f59e0b' }}>{selectedStudent.readiness}%</span>
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#7dd3fc', marginTop: '4px' }}>
-                    Stumbling Topic: {selectedStudent.weakTopic}
-                  </div>
+                <div className="fb-card" style={{ padding: '12px', marginBottom: '16px', background: '#f7f8fa' }}>
+                  <strong>{selectedStudent.name}</strong>
+                  <div style={{ fontSize: '13px', color: '#65676b' }}>Course: {selectedStudent.course} • Weakness: {selectedStudent.weakTopic}</div>
                 </div>
 
-                {noteSavedAlert && (
-                  <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', fontSize: '13px', marginBottom: '1rem' }}>
-                    ✔ Advising note saved & sent to student study recommendations!
+                {savedAlert && (
+                  <div style={{ padding: '10px', background: '#e6f4ea', color: '#137333', borderRadius: '6px', fontSize: '13px', marginBottom: '14px' }}>
+                    ✔ Advice saved and sent to student!
                   </div>
                 )}
 
-                <form onSubmit={saveIntervention} style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <div className="form-group" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <label>Advising Action Plan & Notes</label>
+                <form onSubmit={saveIntervention}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '6px' }}>Advising Plan</label>
                     <textarea
-                      className="input-field"
-                      style={{ flex: 1, minHeight: '180px', fontFamily: 'sans-serif', resize: 'vertical' }}
+                      className="fb-input"
+                      style={{ minHeight: '160px', fontFamily: 'inherit' }}
                       value={interventionNote}
                       onChange={(e) => setInterventionNote(e.target.value)}
                       required
                     ></textarea>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
-                    <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setIsDrawerOpen(false)}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn-primary" style={{ flex: 1 }}>
-                      Save & Send Advice ➔
-                    </button>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    <button type="button" className="btn-fb-secondary" onClick={() => setIsDrawerOpen(false)}>Cancel</button>
+                    <button type="submit" className="btn-fb-primary">Save Advice</button>
                   </div>
                 </form>
               </div>

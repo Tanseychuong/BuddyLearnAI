@@ -14,29 +14,25 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState } = React;
 
     function StudentWorkspace() {
-      const [activeTab, setActiveTab] = useState('overview');
+      const [activeTab, setActiveTab] = useState('feed');
       const [activeCourseId, setActiveCourseId] = useState(1);
       const [uploading, setUploading] = useState(false);
       const [uploadStatus, setUploadStatus] = useState('');
       
-      // Materials List State
       const [materials, setMaterials] = useState([
         { id: 1, name: 'Algorithm_Design_Ch4.pdf', course: 'CS312 Algorithm Analysis', date: '2026-03-10', status: 'Ready' },
         { id: 2, name: 'Dynamic_Programming_Lecture_Notes.pptx', course: 'CS312 Algorithm Analysis', date: '2026-03-12', status: 'Ready' },
-        { id: 3, name: 'Past_Paper_2025_Final.pdf', course: 'CS312 Algorithm Analysis', date: '2026-03-14', status: 'Processing' },
       ]);
 
-      // Active Tool state
-      const [selectedTool, setSelectedTool] = useState('guide');
-      const [quizDifficulty, setQuizDifficulty] = useState('mixed');
-      const [quizQuestionCount, setQuizQuestionCount] = useState(5);
-      const [isGenerating, setIsGenerating] = useState(false);
+      const [selectedTool, setSelectedTool] = useState('quiz');
+      const [currentQuizStep, setCurrentQuizStep] = useState(0);
+      const [selectedOptions, setSelectedOptions] = useState({});
+      const [quizFinished, setQuizFinished] = useState(false);
 
-      // Quiz Engine State
-      const [quizData, setQuizData] = useState([
+      const quizData = [
         {
           id: 1,
           prompt: "What is the key difference between Memoization and Tabulation in Dynamic Programming?",
@@ -47,7 +43,7 @@
             "Tabulation cannot solve overlapping subproblems"
           ],
           correctIdx: 0,
-          explanation: "Memoization works top-down by caching recursive call results, whereas Tabulation fills a table iteratively from base cases up."
+          explanation: "Memoization caches top-down recursive calls, whereas Tabulation builds a table iteratively."
         },
         {
           id: 2,
@@ -59,45 +55,22 @@
             "Memory can be dynamically reallocated during execution"
           ],
           correctIdx: 0,
-          explanation: "Optimal substructure allows us to solve large problems recursively by combining optimal solutions of smaller subproblems."
-        },
-        {
-          id: 3,
-          prompt: "In Floyd-Warshall all-pairs shortest paths, what is the worst-case time complexity?",
-          options: ["O(V³)", "O(V log V)", "O(V + E)", "O(E²)"],
-          correctIdx: 0,
-          explanation: "Floyd-Warshall uses three nested loops over vertices V, resulting in O(V³) time complexity."
+          explanation: "Optimal substructure allows building global optimal solutions from optimal subproblem solutions."
         }
-      ]);
-      const [currentQuizStep, setCurrentQuizStep] = useState(0);
-      const [selectedOptions, setSelectedOptions] = useState({});
-      const [quizFinished, setQuizFinished] = useState(false);
-
-      // Flashcards State
-      const [flashcards, setFlashcards] = useState([
-        { id: 1, front: "What is Dynamic Programming?", back: "A method for solving complex problems by breaking them into overlapping subproblems and storing intermediate results to avoid redundant work." },
-        { id: 2, front: "Define Memoization.", back: "A top-down optimization technique that caches the return values of expensive function calls based on input parameters." },
-        { id: 3, front: "What is the Greedy Choice Property?", back: "A global optimal solution can be arrived at by making locally optimal choices at each step without reconsidering past decisions." },
-        { id: 4, front: "What is Dijkstra's Algorithm complexity with a Min-Heap?", back: "O((V + E) log V), where V is vertices and E is edges." }
-      ]);
-      const [flashcardIdx, setFlashcardIdx] = useState(0);
-      const [isFlipped, setIsFlipped] = useState(false);
-      const [masteredCards, setMasteredCards] = useState(new Set());
-
-      // Past Exam Topics
-      const examTopics = [
-        { topic: 'Graph Algorithms & Shortest Path', frequency: '34%', weight: 34, difficulty: 'High' },
-        { topic: 'Dynamic Programming & Recurrences', frequency: '26%', weight: 26, difficulty: 'High' },
-        { topic: 'Binary Search Trees & AVL Rotations', frequency: '15%', weight: 15, difficulty: 'Medium' },
-        { topic: 'Sorting & Heapify Operations', frequency: '13%', weight: 13, difficulty: 'Medium' },
-        { topic: 'Hash Tables & Collision Resolution', frequency: '12%', weight: 12, difficulty: 'Low' }
       ];
 
-      // Recommendations
-      const recommendations = [
-        { title: 'Review Memoization State Tables', reason: 'Missed 2 questions in practice quiz', priority: 'High' },
-        { title: 'Practice Floyd-Warshall Recurrences', reason: 'Past exam weight is 34%', priority: 'High' },
-        { title: 'Flashcard Refresher: Tree Rotations', reason: '3 days since last review', priority: 'Medium' }
+      const flashcards = [
+        { id: 1, front: "What is Dynamic Programming?", back: "A method for solving complex problems by breaking them into overlapping subproblems and storing intermediate results." },
+        { id: 2, front: "Define Memoization.", back: "A top-down optimization technique that caches function return values based on input parameters." },
+        { id: 3, front: "What is Dijkstra's Algorithm complexity with a Min-Heap?", back: "O((V + E) log V), where V is vertices and E is edges." }
+      ];
+      const [flashcardIdx, setFlashcardIdx] = useState(0);
+      const [isFlipped, setIsFlipped] = useState(false);
+
+      const examTopics = [
+        { topic: 'Graph Shortest Paths', weight: '34%' },
+        { topic: 'Dynamic Programming Recurrences', weight: '26%' },
+        { topic: 'Binary Search Trees & AVL Rotations', weight: '15%' }
       ];
 
       const handleFileUpload = async (e) => {
@@ -107,542 +80,284 @@
 
         const file = fileInput.files[0];
         setUploading(true);
-        setUploadStatus('Uploading file to processing queue...');
 
         const formData = new FormData();
         formData.append('course_id', activeCourseId);
         formData.append('file', file);
 
         try {
-          const res = await fetch('/uploads', {
-            method: 'POST',
-            body: formData,
-          });
+          await fetch('/uploads', { method: 'POST', body: formData });
+        } catch (e) {}
 
-          if (res.ok) {
-            const data = await res.json();
-            setMaterials(prev => [{
-              id: Date.now(),
-              name: data.filename || file.name,
-              course: activeCourseId === 1 ? 'CS312 Algorithm Analysis' : 'MATH201 Linear Algebra',
-              date: 'Just now',
-              status: 'Processing'
-            }, ...prev]);
-            setUploadStatus(`✔ ${file.name} uploaded successfully and queued for AI chunking.`);
-          } else {
-            setMaterials(prev => [{
-              id: Date.now(),
-              name: file.name,
-              course: 'CS312 Algorithm Analysis',
-              date: 'Just now',
-              status: 'Ready'
-            }, ...prev]);
-            setUploadStatus(`✔ ${file.name} added to workspace.`);
-          }
-        } catch (err) {
-          setUploadStatus(`✔ ${file.name} saved to course workspace.`);
-        } finally {
-          setUploading(false);
-          fileInput.value = '';
-        }
+        setMaterials([{ id: Date.now(), name: file.name, course: 'CS312 Algorithm Analysis', date: 'Just now', status: 'Ready' }, ...materials]);
+        setUploadStatus(`✔ ${file.name} uploaded to course feed.`);
+        setUploading(false);
+        fileInput.value = '';
       };
 
-      const handleGenerateTool = async (tool) => {
-        setSelectedTool(tool);
-        setIsGenerating(true);
-
-        try {
-          if (tool === 'quiz') {
-            const res = await fetch('/quizzes/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ course_id: activeCourseId, difficulty: quizDifficulty, question_count: quizQuestionCount })
-            });
-            if (res.ok) {
-              const data = await res.json();
-              if (data.questions && data.questions.length > 0) {
-                setQuizData(data.questions.map((q, idx) => ({
-                  id: idx + 1,
-                  prompt: q.prompt || q.question,
-                  options: q.options || ['Option A', 'Option B', 'Option C', 'Option D'],
-                  correctIdx: q.correct_index || 0,
-                  explanation: q.explanation || 'Refer to course notes for full derivation.'
-                })));
-              }
-            }
-          }
-        } catch (e) {
-          // Keep rich interactive fallback
-        } finally {
-          setTimeout(() => setIsGenerating(false), 500);
-        }
-      };
-
-      const selectQuizOption = (qIdx, optIdx) => {
-        setSelectedOptions({ ...selectedOptions, [qIdx]: optIdx });
-      };
-
-      const calculateScore = () => {
-        let correct = 0;
-        quizData.forEach((q, idx) => {
-          if (selectedOptions[idx] === q.correctIdx) correct++;
-        });
-        return correct;
+      const selectOption = (optIdx) => {
+        setSelectedOptions({ ...selectedOptions, [currentQuizStep]: optIdx });
       };
 
       return (
-        <div className="app-shell">
-          {/* Sidebar */}
-          <aside className="sidebar">
-            <a href="/" className="brand">
-              <div className="brand-mark">B</div>
-              <div className="brand-text">
-                <span className="brand-name">BuddyLearnAI</span>
-                <span className="brand-sub">Study Workspace</span>
-              </div>
-            </a>
-
-            <nav className="nav-list">
-              <button 
-                className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-                onClick={() => setActiveTab('overview')}
-              >
-                <span>📌 Overview</span>
-              </button>
-
-              <button 
-                className={`nav-item ${activeTab === 'materials' ? 'active' : ''}`}
-                onClick={() => setActiveTab('materials')}
-              >
-                <span>📂 Course Materials</span>
-              </button>
-
-              <button 
-                className={`nav-item ${activeTab === 'tools' ? 'active' : ''}`}
-                onClick={() => setActiveTab('tools')}
-              >
-                <span>🧠 AI Study Tools</span>
-              </button>
-
-              <button 
-                className={`nav-item ${activeTab === 'exams' ? 'active' : ''}`}
-                onClick={() => setActiveTab('exams')}
-              >
-                <span>📊 Past Exam Insights</span>
-              </button>
-
-              <button 
-                className={`nav-item ${activeTab === 'progress' ? 'active' : ''}`}
-                onClick={() => setActiveTab('progress')}
-              >
-                <span>📈 Progress & Streaks</span>
-              </button>
-            </nav>
-
-            <div className="role-switcher-card">
-              <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '6px' }}>Active Role</div>
-              <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '10px' }}>Student Workspace</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <a href="/guidance" className="btn-secondary" style={{ fontSize: '12px', justifyContent: 'center' }}>🎓 Counselor Portal</a>
-                <a href="/admin" className="btn-secondary" style={{ fontSize: '12px', justifyContent: 'center' }}>⚡ Admin Portal</a>
-              </div>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          {/* FB Header Navbar */}
+          <header className="fb-header">
+            <div className="brand-section">
+              <div className="fb-logo-mark">b</div>
+              <span className="brand-title-text">BuddyLearnAI</span>
             </div>
-          </aside>
 
-          {/* Main Workspace */}
-          <main className="workspace">
-            {/* Topbar */}
-            <header className="topbar">
-              <div>
-                <p className="eyebrow">Student Dashboard</p>
-                <h1 className="workspace-title">Turn course files into focused study sessions.</h1>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <select 
+                className="fb-input" 
+                style={{ width: '220px' }}
+                value={activeCourseId}
+                onChange={(e) => setActiveCourseId(Number(e.target.value))}
+              >
+                <option value={1}>CS312 Algorithm Analysis</option>
+                <option value={2}>MATH201 Linear Algebra</option>
+                <option value={3}>CS221 Data Structures</option>
+              </select>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <select 
-                  className="input-field" 
-                  style={{ width: '220px' }}
-                  value={activeCourseId}
-                  onChange={(e) => setActiveCourseId(Number(e.target.value))}
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#050505' }}>
+                👤 Ama Owusu (Student)
+              </span>
+
+              <a href="/student/login" className="btn-fb-secondary">🔒 Log Out</a>
+            </div>
+          </header>
+
+          {/* 3-Column Layout */}
+          <main className="fb-feed-layout">
+            {/* Left Sidebar */}
+            <aside className="left-sidebar">
+              <div className="fb-card" style={{ padding: '8px' }}>
+                <button 
+                  className={`sidebar-nav-item ${activeTab === 'feed' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('feed')}
                 >
-                  <option value={1}>CS312 Algorithm Analysis</option>
-                  <option value={2}>MATH201 Linear Algebra</option>
-                  <option value={3}>CS221 Data Structures</option>
-                </select>
+                  📌 Study Feed & AI Tools
+                </button>
 
-                <div style={{ padding: '6px 14px', borderRadius: '20px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fcd34d', fontWeight: 600, fontSize: '13px' }}>
-                  🔥 12 Day Streak
-                </div>
-
-                <a href="/student/login" className="btn-secondary">🔒 Sign Out</a>
+                <button 
+                  className={`sidebar-nav-item ${activeTab === 'materials' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('materials')}
+                >
+                  📂 Course Documents ({materials.length})
+                </button>
               </div>
-            </header>
+            </aside>
 
-            {/* Overview / Hero */}
-            {activeTab === 'overview' && (
-              <div>
-                <div className="hero-panel">
-                  <div>
-                    <div style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '12px', background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', fontSize: '12px', fontWeight: 600, marginBottom: '10px' }}>
-                      Today's Study Goal
-                    </div>
-                    <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '22px', fontWeight: 700, marginBottom: '8px' }}>
-                      Ready to master Dynamic Programming?
-                    </h2>
-                    <p style={{ fontSize: '14px', color: '#94a3b8', maxWidth: '520px', lineHeight: '1.6' }}>
-                      Upload lecture notes, generate customized practice quizzes, flip 3D study flashcards, and review past exam weights.
-                    </p>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '1.25rem' }}>
-                      <button className="btn-primary" onClick={() => setActiveTab('tools')}>
-                        🚀 Launch AI Quiz Player
-                      </button>
-                      <button className="btn-secondary" onClick={() => setActiveTab('materials')}>
-                        📤 Upload Course Document
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="score-ring">
-                    <div className="score-ring-inner">
-                      <span className="score-val">82%</span>
-                      <span className="score-label">Readiness</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Quick Recommendations Grid */}
-                <div style={{ marginBottom: '2rem' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '1rem' }}>Recommended Focus Items</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-                    {recommendations.map((item, idx) => (
-                      <div key={idx} className="glass-panel" style={{ padding: '1.25rem', borderLeft: `4px solid ${item.priority === 'High' ? '#ec4899' : '#6366f1'}` }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                          <strong style={{ fontSize: '14px' }}>{item.title}</strong>
-                          <span style={{ fontSize: '11px', color: item.priority === 'High' ? '#fca5a5' : '#a5b4fc', fontWeight: 600 }}>
-                            {item.priority} Priority
-                          </span>
-                        </div>
-                        <p style={{ fontSize: '13px', color: '#94a3b8' }}>{item.reason}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Course Materials Tab */}
-            {activeTab === 'materials' && (
-              <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Smart Course Document Processing</h2>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '1.5rem' }}>Upload lecture PDFs, slides, and notes for AI retrieval and chunking.</p>
-
-                <form onSubmit={handleFileUpload} style={{ marginBottom: '2rem' }}>
-                  <label className="file-drop-zone" style={{ display: 'block' }}>
+            {/* Middle Content Feed */}
+            <section className="feed-content">
+              {/* Post Upload Card */}
+              <div className="fb-card create-post-card">
+                <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px' }}>Upload Course Material to Feed</h3>
+                <form onSubmit={handleFileUpload}>
+                  <label className="file-drop-area" style={{ display: 'block' }}>
                     <input type="file" name="file" style={{ display: 'none' }} onChange={(e) => {
                       if (e.target.files.length > 0) {
                         handleFileUpload({ preventDefault: () => {}, target: e.target.form });
                       }
                     }} />
-                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>📁</div>
-                    <strong style={{ fontSize: '15px', display: 'block', marginBottom: '4px' }}>Click or Drop files here to upload</strong>
-                    <span style={{ fontSize: '13px', color: '#94a3b8' }}>Supports PDF, PPTX, DOCX, and TXT files</span>
+                    <div style={{ fontSize: '24px', marginBottom: '4px' }}>📁</div>
+                    <strong style={{ fontSize: '14px', display: 'block' }}>Click or drag PDF / PPTX slides here</strong>
                   </label>
                 </form>
 
                 {uploadStatus && (
-                  <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', color: '#6ee7b7', fontSize: '13px', marginBottom: '1.5rem' }}>
+                  <div style={{ marginTop: '10px', fontSize: '13px', color: '#137333', fontWeight: 600 }}>
                     {uploadStatus}
                   </div>
                 )}
-
-                <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '1rem' }}>Uploaded Materials Directory</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {materials.map(m => (
-                    <div key={m.id} className="glass-panel" style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '20px' }}>📄</span>
-                        <div>
-                          <strong style={{ fontSize: '14px', display: 'block' }}>{m.name}</strong>
-                          <span style={{ fontSize: '12px', color: '#94a3b8' }}>{m.course} • Uploaded {m.date}</span>
-                        </div>
-                      </div>
-
-                      <span style={{ 
-                        padding: '3px 10px', 
-                        borderRadius: '12px', 
-                        fontSize: '12px', 
-                        fontWeight: 600,
-                        background: m.status === 'Ready' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                        color: m.status === 'Ready' ? '#6ee7b7' : '#fcd34d'
-                      }}>
-                        {m.status === 'Ready' ? '✔ Ready' : '⏳ Processing...'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
 
-            {/* AI Study Tools Tab */}
-            {(activeTab === 'tools' || activeTab === 'overview') && (
-              <div className="glass-panel" style={{ padding: '2rem', marginTop: activeTab === 'overview' ? '2rem' : 0 }}>
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontSize: '18px', fontWeight: 600 }}>AI Study Generator & Hub</h2>
-                  <p style={{ fontSize: '13px', color: '#94a3b8' }}>Select a study tool to generate interactive practice sets from your notes.</p>
-                </div>
-
-                {/* Tool Selector Buttons */}
-                <div className="tool-grid">
+              {/* Study Tool Selector Tabs */}
+              <div className="fb-card" style={{ padding: '12px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                   <button 
-                    className={`tool-card-btn ${selectedTool === 'guide' ? 'active' : ''}`}
-                    onClick={() => handleGenerateTool('guide')}
+                    className={`btn-fb-${selectedTool === 'quiz' ? 'primary' : 'secondary'}`}
+                    onClick={() => setSelectedTool('quiz')}
                   >
-                    <span style={{ fontSize: '22px' }}>📘</span>
-                    <span>Study Guide</span>
+                    ❓ Practice Quiz Player
                   </button>
 
                   <button 
-                    className={`tool-card-btn ${selectedTool === 'quiz' ? 'active' : ''}`}
-                    onClick={() => handleGenerateTool('quiz')}
+                    className={`btn-fb-${selectedTool === 'flashcards' ? 'primary' : 'secondary'}`}
+                    onClick={() => setSelectedTool('flashcards')}
                   >
-                    <span style={{ fontSize: '22px' }}>❓ AI Quiz Player</span>
+                    🗂 3D Study Flashcards
                   </button>
 
                   <button 
-                    className={`tool-card-btn ${selectedTool === 'flashcards' ? 'active' : ''}`}
-                    onClick={() => handleGenerateTool('flashcards')}
+                    className={`btn-fb-${selectedTool === 'guide' ? 'primary' : 'secondary'}`}
+                    onClick={() => setSelectedTool('guide')}
                   >
-                    <span style={{ fontSize: '22px' }}>🗂 3D Flashcards</span>
+                    📘 Study Guide Summary
                   </button>
                 </div>
 
-                {isGenerating ? (
-                  <div style={{ textAlign: 'center', padding: '3rem 0', color: '#a5b4fc' }}>
-                    <div style={{ fontSize: '36px', animation: 'spin 1s infinite linear' }}>⚡</div>
-                    <p style={{ marginTop: '10px', fontSize: '14px' }}>Retrieving course context & generating AI study results...</p>
-                  </div>
-                ) : (
+                {/* Tool 1: Interactive Quiz Player */}
+                {selectedTool === 'quiz' && (
                   <div>
-                    {/* Tool 1: Study Guide Viewer */}
-                    {selectedTool === 'guide' && (
-                      <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#a5b4fc', marginBottom: '1rem' }}>
-                          📘 Comprehensive Study Guide: Dynamic Programming & Recurrences
-                        </h3>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                          <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
-                            <strong style={{ color: '#6ee7b7', fontSize: '14px', display: 'block', marginBottom: '6px' }}>
-                              📍 Key Concepts & Core Ideas
-                            </strong>
-                            <p style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: '1.6' }}>
-                              Dynamic Programming solves optimization problems by storing the answers to overlapping subproblems. 
-                              The two main approaches are Top-Down (Memoization) and Bottom-Up (Tabulation).
-                            </p>
-                          </div>
-
-                          <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
-                            <strong style={{ color: '#7dd3fc', fontSize: '14px', display: 'block', marginBottom: '6px' }}>
-                              📐 Important Formulae & Recurrence Relations
-                            </strong>
-                            <code style={{ display: 'block', background: 'rgba(0,0,0,0.4)', padding: '10px', borderRadius: '6px', color: '#34d399', fontSize: '13px' }}>
-                              dp[i][j] = min(dp[i-1][j], dp[i][j-w[i]] + v[i])  (Unbounded Knapsack)
-                            </code>
-                          </div>
-
-                          <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
-                            <strong style={{ color: '#fca5a5', fontSize: '14px', display: 'block', marginBottom: '6px' }}>
-                              ⚠️ Common Student Mistakes
-                            </strong>
-                            <ul style={{ paddingLeft: '1.2rem', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.6' }}>
-                              <li>Forgetting to define base case initialization for size 0 subproblems.</li>
-                              <li>Overlapping state indexing leading to off-by-one errors.</li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Tool 2: Interactive Quiz Player */}
-                    {selectedTool === 'quiz' && (
-                      <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                          <h3 style={{ fontSize: '16px', fontWeight: 600 }}>Interactive Practice Quiz</h3>
-                          <span style={{ fontSize: '13px', color: '#94a3b8' }}>
-                            Question {currentQuizStep + 1} of {quizData.length}
-                          </span>
-                        </div>
-
-                        {!quizFinished ? (
-                          <div>
-                            <div style={{ fontSize: '16px', fontWeight: 600, color: '#fff', marginBottom: '1.25rem', lineHeight: '1.5' }}>
-                              {quizData[currentQuizStep].prompt}
-                            </div>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                              {quizData[currentQuizStep].options.map((opt, idx) => {
-                                const selected = selectedOptions[currentQuizStep] === idx;
-                                return (
-                                  <button
-                                    key={idx}
-                                    className={`quiz-option-btn ${selected ? 'selected' : ''}`}
-                                    onClick={() => selectQuizOption(currentQuizStep, idx)}
-                                  >
-                                    <span>{opt}</span>
-                                    {selected && <span>✓</span>}
-                                  </button>
-                                );
-                              })}
-                            </div>
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <button
-                                className="btn-secondary"
-                                disabled={currentQuizStep === 0}
-                                onClick={() => setCurrentQuizStep(currentQuizStep - 1)}
-                              >
-                                ← Previous
-                              </button>
-
-                              {currentQuizStep < quizData.length - 1 ? (
-                                <button
-                                  className="btn-primary"
-                                  onClick={() => setCurrentQuizStep(currentQuizStep + 1)}
-                                >
-                                  Next Question →
-                                </button>
-                              ) : (
-                                <button
-                                  className="btn-primary"
-                                  onClick={() => setQuizFinished(true)}
-                                >
-                                  Submit & Reveal Score 🏆
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆</div>
-                            <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px' }}>Quiz Completed!</h3>
-                            <p style={{ fontSize: '16px', color: '#a5b4fc', marginBottom: '1.5rem' }}>
-                              You scored <strong>{calculateScore()}</strong> out of <strong>{quizData.length}</strong> ({Math.round((calculateScore() / quizData.length) * 100)}%)
-                            </p>
-
-                            <button className="btn-primary" onClick={() => {
-                              setSelectedOptions({});
-                              setCurrentQuizStep(0);
-                              setQuizFinished(false);
-                            }}>
-                              🔄 Retake Quiz
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Tool 3: 3D Flashcard Deck */}
-                    {selectedTool === 'flashcards' && (
+                    {!quizFinished ? (
                       <div>
-                        <div style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '13px', color: '#94a3b8' }}>
-                          Click the card to flip between Question and Explanation • Card {flashcardIdx + 1} of {flashcards.length}
+                        <div style={{ fontSize: '13px', color: '#65676b', marginBottom: '8px' }}>
+                          Question {currentQuizStep + 1} of {quizData.length}
+                        </div>
+                        <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '14px' }}>
+                          {quizData[currentQuizStep].prompt}
+                        </h4>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                          {quizData[currentQuizStep].options.map((opt, idx) => (
+                            <button
+                              key={idx}
+                              style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                textAlign: 'left',
+                                background: selectedOptions[currentQuizStep] === idx ? '#e7f3ff' : '#f0f2f5',
+                                border: selectedOptions[currentQuizStep] === idx ? '1px solid #0866ff' : '1px solid #e4e6eb',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: selectedOptions[currentQuizStep] === idx ? 600 : 400,
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => selectOption(idx)}
+                            >
+                              {opt}
+                            </button>
+                          ))}
                         </div>
 
-                        <div 
-                          className={`flashcard-wrapper ${isFlipped ? 'flipped' : ''}`}
-                          onClick={() => setIsFlipped(!isFlipped)}
-                        >
-                          <div className="flashcard-inner">
-                            <div className="flashcard-face flashcard-front">
-                              <span style={{ fontSize: '12px', color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
-                                Flashcard Question
-                              </span>
-                              <h3 style={{ fontSize: '18px', fontWeight: 600 }}>{flashcards[flashcardIdx].front}</h3>
-                              <span style={{ marginTop: '1rem', fontSize: '12px', color: '#94a3b8' }}>↻ Click to reveal answer</span>
-                            </div>
-
-                            <div className="flashcard-face flashcard-back">
-                              <span style={{ fontSize: '12px', color: '#6ee7b7', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
-                                Explanation & Answer
-                              </span>
-                              <p style={{ fontSize: '15px', lineHeight: '1.6' }}>{flashcards[flashcardIdx].back}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginTop: '1rem' }}>
-                          <button 
-                            className="btn-secondary"
-                            disabled={flashcardIdx === 0}
-                            onClick={() => { setIsFlipped(false); setFlashcardIdx(flashcardIdx - 1); }}
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <button
+                            className="btn-fb-secondary"
+                            disabled={currentQuizStep === 0}
+                            onClick={() => setCurrentQuizStep(currentQuizStep - 1)}
                           >
-                            ← Previous Card
+                            ← Previous
                           </button>
 
-                          <button 
-                            className="btn-primary"
-                            disabled={flashcardIdx === flashcards.length - 1}
-                            onClick={() => { setIsFlipped(false); setFlashcardIdx(flashcardIdx + 1); }}
-                          >
-                            Next Card →
-                          </button>
+                          {currentQuizStep < quizData.length - 1 ? (
+                            <button
+                              className="btn-fb-primary"
+                              onClick={() => setCurrentQuizStep(currentQuizStep + 1)}
+                            >
+                              Next →
+                            </button>
+                          ) : (
+                            <button className="btn-fb-primary" onClick={() => setQuizFinished(true)}>
+                              Submit Quiz 🏆
+                            </button>
+                          )}
                         </div>
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                        <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Quiz Finished!</h3>
+                        <p style={{ fontSize: '14px', color: '#65676b', margin: '8px 0 16px' }}>Great effort on practice set 1!</p>
+                        <button className="btn-fb-primary" onClick={() => { setQuizFinished(false); setCurrentQuizStep(0); setSelectedOptions({}); }}>
+                          🔄 Try Again
+                        </button>
                       </div>
                     )}
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* Past Exam Insights Tab */}
-            {activeTab === 'exams' && (
-              <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Past Examination Pattern Analysis</h2>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '1.5rem' }}>AI topic weight distribution extracted from previous final exam papers.</p>
+                {/* Tool 2: 3D Flashcards */}
+                {selectedTool === 'flashcards' && (
+                  <div>
+                    <div style={{ textAlign: 'center', fontSize: '12px', color: '#65676b', marginBottom: '8px' }}>
+                      Click card to flip • Card {flashcardIdx + 1} of {flashcards.length}
+                    </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {examTopics.map((topic, idx) => (
-                    <div key={idx} className="glass-panel" style={{ padding: '1.25rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <strong style={{ fontSize: '15px' }}>{topic.topic}</strong>
-                        <span style={{ fontWeight: 700, color: '#a5b4fc' }}>{topic.frequency} weight</span>
+                    <div 
+                      className={`flashcard-wrapper ${isFlipped ? 'flipped' : ''}`}
+                      onClick={() => setIsFlipped(!isFlipped)}
+                    >
+                      <div className="flashcard-inner">
+                        <div className="flashcard-face flashcard-front">
+                          <span style={{ fontSize: '11px', color: '#0866ff', textTransform: 'uppercase', fontWeight: 700, marginBottom: '8px' }}>
+                            Question
+                          </span>
+                          <h4 style={{ fontSize: '16px', fontWeight: 600 }}>{flashcards[flashcardIdx].front}</h4>
+                          <span style={{ fontSize: '12px', color: '#65676b', marginTop: '12px' }}>↻ Click to flip</span>
+                        </div>
+
+                        <div className="flashcard-face flashcard-back">
+                          <span style={{ fontSize: '11px', color: '#42b72a', textTransform: 'uppercase', fontWeight: 700, marginBottom: '8px' }}>
+                            Explanation
+                          </span>
+                          <p style={{ fontSize: '14px', lineHeight: '1.5' }}>{flashcards[flashcardIdx].back}</p>
+                        </div>
                       </div>
-                      <div style={{ height: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '5px', overflow: 'hidden' }}>
-                        <div style={{ width: topic.frequency, height: '100%', background: 'linear-gradient(90deg, #6366f1, #ec4899)' }}></div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                      <button
+                        className="btn-fb-secondary"
+                        disabled={flashcardIdx === 0}
+                        onClick={() => { setIsFlipped(false); setFlashcardIdx(flashcardIdx - 1); }}
+                      >
+                        ← Previous
+                      </button>
+
+                      <button
+                        className="btn-fb-primary"
+                        disabled={flashcardIdx === flashcards.length - 1}
+                        onClick={() => { setIsFlipped(false); setFlashcardIdx(flashcardIdx + 1); }}
+                      >
+                        Next Card →
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tool 3: Study Guide */}
+                {selectedTool === 'guide' && (
+                  <div style={{ padding: '10px 0' }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#0866ff', marginBottom: '8px' }}>
+                      📘 Dynamic Programming Chapter Summary
+                    </h4>
+                    <p style={{ fontSize: '13px', color: '#050505', lineHeight: '1.6' }}>
+                      Dynamic Programming optimizes recursive algorithms by caching overlapping subproblem results.
+                      Top-Down (Memoization) uses recursion + lookup table. Bottom-Up (Tabulation) computes base cases first.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Right Widget Column */}
+            <aside style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="fb-card" style={{ padding: '16px' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '10px' }}>Exam Readiness Gauge</h4>
+                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#e7f3ff', border: '6px solid #0866ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 800, color: '#0866ff' }}>82%</span>
+                </div>
+                <div style={{ textAlign: 'center', fontSize: '12px', color: '#65676b' }}>High Exam Readiness</div>
+              </div>
+
+              <div className="fb-card" style={{ padding: '16px' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '10px' }}>Past Exam Topic Weights</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {examTopics.map((item, idx) => (
+                    <div key={idx} style={{ fontSize: '13px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                        <span>{item.topic}</span>
+                        <strong>{item.weight}</strong>
+                      </div>
+                      <div style={{ height: '6px', background: '#e4e6eb', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ width: item.weight, height: '100%', background: '#0866ff' }}></div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* Progress & Streaks Tab */}
-            {activeTab === 'progress' && (
-              <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Learning Signals & Mastery</h2>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '1.5rem' }}>Your cumulative study progress across courses.</p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-                  <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Quiz Mastery</div>
-                    <div style={{ fontSize: '32px', fontWeight: 700, color: '#34d399', marginBottom: '8px' }}>76%</div>
-                    <p style={{ fontSize: '12px', color: '#94a3b8' }}>Based on 14 completed practice sets</p>
-                  </div>
-
-                  <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Material Coverage</div>
-                    <div style={{ fontSize: '32px', fontWeight: 700, color: '#60a5fa', marginBottom: '8px' }}>88%</div>
-                    <p style={{ fontSize: '12px', color: '#94a3b8' }}>3 of 4 course chapters indexed</p>
-                  </div>
-
-                  <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Exam Readiness</div>
-                    <div style={{ fontSize: '32px', fontWeight: 700, color: '#c084fc', marginBottom: '8px' }}>82%</div>
-                    <p style={{ fontSize: '12px', color: '#94a3b8' }}>Predicted score readiness score</p>
-                  </div>
-                </div>
-              </div>
-            )}
+            </aside>
           </main>
         </div>
       );
