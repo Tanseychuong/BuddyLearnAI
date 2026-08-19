@@ -38,7 +38,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-
+# Function to get the application settings with caching to avoid reloading from environment variables multiple times.
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
