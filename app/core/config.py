@@ -5,6 +5,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# Application settings class that loads configuration from environment variables.
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
