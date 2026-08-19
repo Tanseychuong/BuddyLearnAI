@@ -1,3 +1,4 @@
+# This file contains the API endpoints for generating quizzes based on a given course and difficulty level.
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
