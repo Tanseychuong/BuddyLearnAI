@@ -10,6 +10,7 @@ from app.schemas import CourseCreate, CourseRead
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
 
+# list courses router for the fast api
 @router.get("", response_model=list[CourseRead])
 def list_courses(
     current_user: User = Depends(get_current_user),
