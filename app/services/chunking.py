@@ -7,7 +7,7 @@ rather than cutting mid-word.
 
 import re
 
-# This file is part of BuddyLearnAI, a project developed by Chuong Tiutiu Nyang Mayian.
+# Constants for default chunk size and overlap in characters.
 DEFAULT_CHUNK_SIZE = 1000  # characters
 DEFAULT_CHUNK_OVERLAP = 150  # characters
 
