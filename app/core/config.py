@@ -1,3 +1,4 @@
+# This file contains the application settings and configuration loaded from environment variables.
 from functools import lru_cache
 from typing import Literal
 
