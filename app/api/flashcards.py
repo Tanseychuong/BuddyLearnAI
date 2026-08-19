@@ -1,7 +1,8 @@
+# This file contains the API endpoints for generating flashcards based on a given course and topic.
 from pydantic import BaseModel, Field
 from fastapi import APIRouter
 
-
+# intializing the router for the flashcards modules
 router = APIRouter(prefix="/flashcards", tags=["Flashcards"])
 
 #Flashcard generator request class
