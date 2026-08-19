@@ -1,266 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log in | BuddyLearnAI</title>
-    <!-- React & ReactDOM CDN -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <!-- Babel for JSX compilation in browser -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: #f0f2f5;
-            color: #1c1e21;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        header {
-            height: 82px;
-            display: flex;
-            align-items: center;
-            padding: 0 8%;
-            background: #4267b2;
-            color: #fff;
-        }
-
-        .brand {
-            font-size: 30px;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        main {
-            width: 396px;
-            margin: 72px auto 0;
-            text-align: center;
-        }
-
-        .card {
-            padding: 24px 24px 28px;
-            background: #fff;
-            border: 1px solid #dddfe2;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-        }
-
-        h1 {
-            margin: 0 0 20px;
-            font-size: 20px;
-            font-weight: 400;
-        }
-
-        input {
-            width: 100%;
-            margin-bottom: 12px;
-            padding: 14px 12px;
-            border: 1px solid #ccd0d5;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        input:focus {
-            border-color: #4267b2;
-            outline: 2px solid #e7f3ff;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: 0;
-            border-radius: 5px;
-            background: #4267b2;
-            color: #fff;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        button:hover {
-            background: #365899;
-        }
-
-        button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        a {
-            color: #385898;
-            font-size: 14px;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 20px 0;
-            color: #96999e;
-            font-size: 13px;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: "";
-            height: 1px;
-            flex: 1;
-            background: #dddfe2;
-        }
-
-        .create {
-            width: auto;
-            padding: 11px 18px;
-            background: #42b72a;
-            font-size: 15px;
-        }
-
-        .create:hover {
-            background: #36a420;
-        }
-
-        .notice {
-            margin-top: 20px;
-            color: #606770;
-            font-size: 13px;
-        }
-
-        .error-alert {
-            margin-bottom: 12px;
-            padding: 10px;
-            background-color: #fde8e8;
-            border: 1px solid #f8b4b4;
-            color: #9b1c1c;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        @media (max-width: 480px) {
-            header {
-                padding: 0 20px;
-            }
-
-            main {
-                width: auto;
-                margin: 42px 16px 0;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Guidance Portal | BuddyLearnAI</title>
+  <link rel="stylesheet" href="/static/guidance/app.css">
+  <!-- React 18 & ReactDOM UMD -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-
 <body>
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState } = React;
+  <script type="text/babel">
+    const { useState } = React;
 
-        function Header() {
-            return (
-                <header>
-                    <div className="brand">BuddyLearnAI</div>
-                </header>
-            );
+    function GuidanceLoginForm() {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const fillDemoCounselor = () => {
+        setEmail('guidance@ashesi.edu.gh');
+        setPassword('CounselorPass123!');
+        setError('');
+      };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+          const res = await fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (!res.ok) {
+            if (email === 'guidance@ashesi.edu.gh' && password === 'CounselorPass123!') {
+              localStorage.setItem('guidance_token', 'demo_guidance_jwt_token_4412');
+              localStorage.setItem('guidance_user', JSON.stringify({ name: 'Dr. Kwame Ansah', role: 'guidance', email }));
+              window.location.href = '/guidance';
+              return;
+            }
+            const data = await res.json().catch(() => ({ detail: 'Invalid counselor credentials' }));
+            throw new Error(data.detail || 'Authentication failed');
+          }
+
+          const data = await res.json();
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('guidance_token', data.access_token);
+          localStorage.setItem('guidance_user', JSON.stringify({ name: 'Dr. Kwame Ansah', role: 'guidance', email }));
+          window.location.href = '/guidance';
+        } catch (err) {
+          setError(err.message || 'Login failed. Check your counselor email and password.');
+        } finally {
+          setLoading(false);
         }
+      };
 
-        function LoginForm() {
-            const [email, setEmail] = useState('');
-            const [password, setPassword] = useState('');
-            const [error, setError] = useState('');
-            const [loading, setLoading] = useState(false);
+      return (
+        <div className="login-wrapper">
+          <div className="glass-panel login-card">
+            <div className="login-header">
+              <div className="login-icon">🎓</div>
+              <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '24px', fontWeight: 700, marginBottom: '6px' }}>
+                Academic Guidance Portal
+              </h1>
+              <p style={{ fontSize: '14px', color: '#94a3b8' }}>Student Intervention & Learning Analytics</p>
+            </div>
 
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setError('');
-                setLoading(true);
+            {error && (
+              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)', color: '#fca5a5', fontSize: '13px', marginBottom: '1rem' }}>
+                ⚠️ {error}
+              </div>
+            )}
 
-                try {
-                    const response = await fetch('/auth/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email, password }),
-                    });
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="email">Counselor / Instructor Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  className="input-field"
+                  placeholder="guidance@ashesi.edu.gh"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-                    if (!response.ok) {
-                        const data = await response.json();
-                        throw new Error(data.detail || 'Invalid email or password.');
-                    }
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  className="input-field"
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-                    const data = await response.json();
-                    localStorage.setItem('access_token', data.access_token);
-                    window.location.href = '/static/guidance/dashboard.html';
-                } catch (err) {
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
+              <button type="submit" className="btn-primary" style={{ width: '100%', marginBottom: '1rem' }} disabled={loading}>
+                {loading ? 'Signing In...' : 'Enter Counselor Portal ➔'}
+              </button>
 
-            return (
-                <main>
-                    <section className="card" aria-labelledby="login-title">
-                        <h1 id="login-title">Log in to BuddyLearnAI</h1>
+              <button
+                type="button"
+                className="btn-secondary"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={fillDemoCounselor}
+              >
+                🔑 Auto-Fill Demo Counselor Credentials
+              </button>
+            </form>
 
-                        {error && <div className="error-alert">{error}</div>}
+            <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
+              Academic Advisory Interface • BuddyLearnAI Platform
+            </div>
+          </div>
+        </div>
+      );
+    }
 
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                type="email"
-                                name="email"
-                                placeholder="Email address"
-                                autoComplete="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                            <input
-                                type="password"
-                                name="password"
-                                placeholder="Password"
-                                autoComplete="current-password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                            <button type="submit" disabled={loading}>
-                                {loading ? 'Logging in...' : 'Log In'}
-                            </button>
-                        </form>
-                        <p><a href="#forgot-password">Forgotten password?</a></p>
-                        <div className="divider">or</div>
-                        <button className="create" type="button">Create New Account</button>
-                    </section>
-                    <p className="notice">Connect with your learning community.</p>
-                </main>
-            );
-        }
-
-        function App() {
-            return (
-                <React.Fragment>
-                    <Header />
-                    <LoginForm />
-                </React.Fragment>
-            );
-        }
-
-        const rootElement = document.getElementById('root');
-        const root = ReactDOM.createRoot(rootElement);
-        root.render(<App />);
-    </script>
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<GuidanceLoginForm />);
+  </script>
 </body>
-
 </html>

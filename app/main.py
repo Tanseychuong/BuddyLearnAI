@@ -64,10 +64,34 @@ app.include_router(recommendations.router)
 
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-# Defining the root endpoint to serve the frontend index.html
+# Defining the root endpoint and role-specific routes
 @app.get("/")
 async def root() -> FileResponse:
-    return FileResponse(FRONTEND_DIR / "index.html")
+    return FileResponse(FRONTEND_DIR / "student" / "index.html")
+
+@app.get("/admin")
+async def admin_dashboard() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "admin" / "dashboard.html")
+
+@app.get("/admin/login")
+async def admin_login() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "admin" / "login.html")
+
+@app.get("/guidance")
+async def guidance_dashboard() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "guidance" / "dashboard.html")
+
+@app.get("/guidance/login")
+async def guidance_login() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "guidance" / "login.html")
+
+@app.get("/student")
+async def student_dashboard() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "student" / "index.html")
+
+@app.get("/student/login")
+async def student_login() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "student" / "login.html")
 
 # Defining a health check endpoint
 @app.get("/health")
