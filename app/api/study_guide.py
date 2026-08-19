@@ -1,3 +1,5 @@
+# This file contains the API endpoints for generating study guides based on a given course and topic.
+
 from pydantic import BaseModel, Field
 from fastapi import APIRouter
 
