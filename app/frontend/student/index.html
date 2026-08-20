@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
+
 <body>
   <div id="root"></div>
 
@@ -21,7 +23,7 @@
       const [activeCourseId, setActiveCourseId] = useState(1);
       const [uploading, setUploading] = useState(false);
       const [uploadStatus, setUploadStatus] = useState('');
-      
+
       const [materials, setMaterials] = useState([
         { id: 1, name: 'Algorithm_Design_Ch4.pdf', course: 'CS312 Algorithm Analysis', date: '2026-03-10', status: 'Ready' },
         { id: 2, name: 'Dynamic_Programming_Lecture_Notes.pptx', course: 'CS312 Algorithm Analysis', date: '2026-03-12', status: 'Ready' },
@@ -87,7 +89,7 @@
 
         try {
           await fetch('/uploads', { method: 'POST', body: formData });
-        } catch (e) {}
+        } catch (e) { }
 
         setMaterials([{ id: Date.now(), name: file.name, course: 'CS312 Algorithm Analysis', date: 'Just now', status: 'Ready' }, ...materials]);
         setUploadStatus(`✔ ${file.name} uploaded to course feed.`);
@@ -95,6 +97,7 @@
         fileInput.value = '';
       };
 
+      // Function to select an option in the quiz
       const selectOption = (optIdx) => {
         setSelectedOptions({ ...selectedOptions, [currentQuizStep]: optIdx });
       };
@@ -109,8 +112,8 @@
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <select 
-                className="fb-input" 
+              <select
+                className="fb-input"
                 style={{ width: '220px' }}
                 value={activeCourseId}
                 onChange={(e) => setActiveCourseId(Number(e.target.value))}
@@ -133,14 +136,14 @@
             {/* Left Sidebar */}
             <aside className="left-sidebar">
               <div className="fb-card" style={{ padding: '8px' }}>
-                <button 
+                <button
                   className={`sidebar-nav-item ${activeTab === 'feed' ? 'active' : ''}`}
                   onClick={() => setActiveTab('feed')}
                 >
                   📌 Study Feed & AI Tools
                 </button>
 
-                <button 
+                <button
                   className={`sidebar-nav-item ${activeTab === 'materials' ? 'active' : ''}`}
                   onClick={() => setActiveTab('materials')}
                 >
@@ -158,7 +161,7 @@
                   <label className="file-drop-area" style={{ display: 'block' }}>
                     <input type="file" name="file" style={{ display: 'none' }} onChange={(e) => {
                       if (e.target.files.length > 0) {
-                        handleFileUpload({ preventDefault: () => {}, target: e.target.form });
+                        handleFileUpload({ preventDefault: () => { }, target: e.target.form });
                       }
                     }} />
                     <div style={{ fontSize: '24px', marginBottom: '4px' }}>📁</div>
@@ -176,21 +179,21 @@
               {/* Study Tool Selector Tabs */}
               <div className="fb-card" style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
-                  <button 
+                  <button
                     className={`btn-fb-${selectedTool === 'quiz' ? 'primary' : 'secondary'}`}
                     onClick={() => setSelectedTool('quiz')}
                   >
                     ❓ Practice Quiz Player
                   </button>
 
-                  <button 
+                  <button
                     className={`btn-fb-${selectedTool === 'flashcards' ? 'primary' : 'secondary'}`}
                     onClick={() => setSelectedTool('flashcards')}
                   >
                     🗂 3D Study Flashcards
                   </button>
 
-                  <button 
+                  <button
                     className={`btn-fb-${selectedTool === 'guide' ? 'primary' : 'secondary'}`}
                     onClick={() => setSelectedTool('guide')}
                   >
@@ -274,7 +277,7 @@
                       Click card to flip • Card {flashcardIdx + 1} of {flashcards.length}
                     </div>
 
-                    <div 
+                    <div
                       className={`flashcard-wrapper ${isFlipped ? 'flipped' : ''}`}
                       onClick={() => setIsFlipped(!isFlipped)}
                     >
@@ -367,4 +370,5 @@
     root.render(<StudentWorkspace />);
   </script>
 </body>
+
 </html>
