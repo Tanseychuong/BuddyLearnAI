@@ -5,6 +5,7 @@ Get a key at https://aistudio.google.com/apikey and set it as
 BUDDYLEARN_GEMINI_API_KEY in your .env.
 """
 
+# Importing necessary modules from the Google GenAI library and the application's configuration settings. The genai module is used to interact with the Gemini API, while get_settings retrieves application-specific configurations, including the Gemini API key.
 from google import genai
 from google.genai import types
 
