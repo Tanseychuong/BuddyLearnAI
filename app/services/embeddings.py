@@ -25,7 +25,7 @@ MAX_BATCH_SIZE = 100
 class EmbeddingError(Exception):
     """Raised when embeddings cannot be generated."""
 
-
+# Define a function to create and return a Gemini API client. It retrieves the API key from the application settings and raises an EmbeddingError if the key is not set.
 def _client() -> genai.Client:
     settings = get_settings()
     if not settings.gemini_api_key:
