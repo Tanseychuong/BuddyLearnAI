@@ -52,6 +52,7 @@ def _embed_batch(
 
     return [embedding.values for embedding in response.embeddings]
 
+# Defining the embed_texts function to embed material chunks for storage/indexing. It processes texts in batches to respect the Gemini API's batch size limit and uses a specific task_type for document embeddings.
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
     """Embed material chunks for storage/indexing."""
