@@ -34,6 +34,7 @@ def _client() -> genai.Client:
         )
     return genai.Client(api_key=settings.gemini_api_key)
 
+# Defining the _embed_batch function to embed a batch of texts using the Gemini API. It handles exceptions and returns a list of embeddings for the input texts.
 
 def _embed_batch(
     client: genai.Client, texts: list[str], task_type: str
