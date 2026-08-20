@@ -91,7 +91,7 @@
         try {
           await fetch('/uploads', { method: 'POST', body: formData });
         } catch (e) { }
-
+        // Update the materials list with the new file
         setMaterials([{ id: Date.now(), name: file.name, course: 'CS312 Algorithm Analysis', date: 'Just now', status: 'Ready' }, ...materials]);
         setUploadStatus(`✔ ${file.name} uploaded to course feed.`);
         setUploading(false);
