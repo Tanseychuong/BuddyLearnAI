@@ -7,6 +7,7 @@ from app.models.user import User
 from app.repositories import course_repository
 from app.schemas import CourseCreate, CourseRead
 
+# FastAPI router for courses
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
 
