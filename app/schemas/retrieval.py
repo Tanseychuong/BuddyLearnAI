@@ -23,7 +23,7 @@ def get_course_context(course_id: int, query: str, top_k: int = DEFAULT_TOP_K) -
     generate from" and surface a clear message to the user.
     """
     client = get_qdrant_client()
-
+    # Check if the collection exists before querying
     try:
         if not client.collection_exists(COLLECTION_NAME):
             return []
