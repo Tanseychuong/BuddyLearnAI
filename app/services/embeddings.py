@@ -20,6 +20,7 @@ EMBEDDING_DIMENSIONS = 768
 # into batches of this size before sending.
 MAX_BATCH_SIZE = 100
 
+# Define a custom exception class for embedding-related errors. This allows for more specific error handling in the embedding functions.
 
 class EmbeddingError(Exception):
     """Raised when embeddings cannot be generated."""
