@@ -67,6 +67,8 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
     return embeddings
 
 
+# Defining the embed query function to embed a search query for retrieval against stored chunks. It uses a different task_type than embed_texts, as Gemini optimizes query and document embeddings differently for retrieval quality. 
+
 def embed_query(text: str) -> list[float]:
     """Embed a search query for retrieval against stored chunks.
 
