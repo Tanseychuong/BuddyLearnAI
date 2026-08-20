@@ -10,6 +10,7 @@ from google.genai import types
 
 from app.core.config import get_settings
 
+# Constants for the Gemini embedding model and its configuration. The model name, embedding dimensions, and maximum batch size for embedding requests are defined here.
 EMBEDDING_MODEL = "gemini-embedding-001"
 # Gemini embeddings support flexible output size via Matryoshka Representation
 # Learning (up to 3072). 768 keeps Qdrant storage/latency small while still
