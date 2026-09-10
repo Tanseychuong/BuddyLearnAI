@@ -50,3 +50,4 @@ def create_course(
         description=course.description,
         material_count=0,
     )
+
