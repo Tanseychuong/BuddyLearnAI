@@ -6,9 +6,9 @@ BuddyLearnAI helps students study smarter by allowing them to upload lecture not
 
 ---
 
-# 🌟 Features
+#  Features
 
-## 📚 Smart Document Processing
+##  Smart Document Processing
 - Upload PDF lecture notes
 - Upload PowerPoint presentations
 - Upload Word documents
@@ -17,7 +17,7 @@ BuddyLearnAI helps students study smarter by allowing them to upload lecture not
 
 ---
 
-## 🧠 AI Study Guide Generator
+##  AI Study Guide Generator
 
 Transform lengthy lecture notes into:
 
@@ -31,7 +31,7 @@ Transform lengthy lecture notes into:
 
 ---
 
-## ❓ AI Quiz Generator
+##  AI Quiz Generator
 
 Generate quizzes from uploaded materials.
 
@@ -52,7 +52,7 @@ Difficulty levels:
 
 ---
 
-## 🗂 Flashcard Generator
+##  Flashcard Generator
 
 Automatically create study flashcards.
 
@@ -84,7 +84,7 @@ Responses are generated using the student's own learning materials rather than g
 
 ---
 
-## 📊 Past Examination Analysis
+##  Past Examination Analysis
 
 Upload previous examination papers and let AI discover patterns such as:
 
@@ -106,7 +106,7 @@ Example:
 
 ---
 
-## 🎯 Personalized Learning Recommendations
+##  Personalized Learning Recommendations
 
 The platform combines:
 
@@ -125,7 +125,7 @@ to recommend:
 
 ---
 
-## 📈 Progress Dashboard
+##  Progress Dashboard
 
 Track learning with:
 
@@ -138,7 +138,7 @@ Track learning with:
 
 ---
 
-# 🏗 System Architecture
+#  System Architecture
 
 ```text
                         Client
@@ -218,7 +218,7 @@ Track learning with:
 
 ---
 
-# 📂 Project Structure
+# Project Structure
 
 ```text
 learning-buddy/
@@ -245,7 +245,7 @@ learning-buddy/
 
 ---
 
-# 🚀 Planned AI Pipeline
+# Planned AI Pipeline
 
 ```text
 Student Uploads Material
@@ -283,7 +283,7 @@ Student Uploads Material
 
 ---
 
-# 🎯 Project Goals
+# Project Goals
 
 Our mission is to build an intelligent learning companion that helps students:
 
@@ -298,7 +298,7 @@ Rather than replacing traditional studying, AI Learning Buddy enhances it by ada
 
 ---
 
-# 🔮 Future Roadmap
+# Future Roadmap
 
 - AI-generated mind maps
 - Voice explanations
@@ -313,7 +313,7 @@ Rather than replacing traditional studying, AI Learning Buddy enhances it by ada
 
 ---
 
-# 🤝 Contributing
+# Contributing
 
 Contributions are welcome!
 
@@ -323,13 +323,13 @@ Please open an issue before submitting major changes.
 
 ---
 
-# 📄 License
+# License
 
 This project is licensed under the MIT License.
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 **Chuong Tiutiu Nyang**
 
