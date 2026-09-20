@@ -23,8 +23,7 @@ class Settings(BaseSettings):
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str | None = None
 
-    openai_api_key: str | None = None
-
+    gemini_api_key: str | None = None
     access_token_expire_minutes: int = 60
     secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
