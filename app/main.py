@@ -86,10 +86,16 @@ app.include_router(recommendations.router)
 
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-# Defining the root endpoint and role-specific routes
+# NOTE: the admin/guidance/student HTML pages these routes used to serve
+# were removed (see git history). Rather than leave routes that 500 on a
+# missing file, this is a placeholder until the frontend rebuild (Phase 4
+# of the roadmap). The JSON API endpoints below are unaffected.
 @app.get("/")
-async def root() -> FileResponse:
-    return FileResponse(FRONTEND_DIR / "student" / "index.html")
+async def root() -> dict[str, str]:
+    return {
+        "message": "BuddyLearnAI API is running.",
+        "status": "frontend not yet rebuilt — see project roadmap",
+    }
 
 @app.get("/admin")
 async def admin_dashboard() -> FileResponse:
@@ -123,4 +129,4 @@ async def health() -> dict[str, str]:
 # Running the app using Uvicorn when executed directly
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
